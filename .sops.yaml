@@ -1,0 +1,25 @@
+keys:
+  - &admin_gorschu age1aph83gkdg83l6cf83nsdthp95dcd5natpa7527sd3p8rtlcj3dgstl502c
+  - &hosts_apollo age1av3q967thq263z9zd9d0rgwje7pvayh4ek40y8guaw8llp26mdcswz8a3f
+  - &hosts_hephaestus age1tx6wn5dtsqguqslm4cevw2crf6fgg89r6t9glxlz6hkmh4y7rqrq7p373h
+creation_rules:
+  - path_regex: secrets/[^/]+\.(yaml|json|env|ini)$
+    key_groups:
+      - age:
+          - *admin_gorschu
+          - *hosts_apollo
+          - *hosts_hephaestus
+  - path_regex: secrets/hosts/apollo/[^/]+\.(yaml|json|env|ini)$
+    key_groups:
+      - age:
+          - *admin_gorschu
+          - *hosts_apollo
+  - path_regex: secrets/hosts/hephaestus/[^/]+\.(yaml|json|env|ini)$
+    key_groups:
+      - age:
+          - *admin_gorschu
+          - *hosts_hephaestus
+  - path_regex: extra-files/.*/ssh/ssh_host_.*_key$
+    key_groups:
+      - age:
+          - *admin_gorschu

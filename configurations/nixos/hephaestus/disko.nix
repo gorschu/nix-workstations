@@ -1,0 +1,121 @@
+{
+  disko.devices = {
+    disk = {
+      main = {
+        type = "disk";
+        content = {
+          type = "gpt";
+          partitions = {
+            ESP = {
+              priority = 1;
+              name = "ESP";
+              size = "1G";
+              type = "EF00";
+              content = {
+                type = "filesystem";
+                format = "vfat";
+                extraArgs = [
+                  "-n"
+                  "ESP"
+                ];
+                mountpoint = "/boot";
+                mountOptions = [
+                  "defaults"
+                  "nofail"
+                  "umask=0077"
+                ];
+              };
+            };
+            zfs = {
+              size = "100%";
+              content = {
+                type = "zfs";
+                pool = "zroot";
+              };
+            };
+          };
+        };
+      };
+    };
+    zpool = {
+      zroot = {
+        type = "zpool";
+        rootFsOptions = {
+          mountpoint = "none";
+          compression = "zstd";
+          acltype = "posixacl";
+          xattr = "sa";
+        };
+        options.ashift = "12";
+        datasets = {
+          # Encrypted root - all children inherit encryption
+          "encrypted" = {
+            type = "zfs_fs";
+            options = {
+              encryption = "aes-256-gcm";
+              keyformat = "passphrase";
+              keylocation = "prompt";
+              canmount = "off";
+              mountpoint = "none";
+            };
+          };
+
+          # Ephemeral datasets (wiped on boot for impermanence)
+          "encrypted/ephemeral" = {
+            type = "zfs_fs";
+            options = {
+              canmount = "off";
+              mountpoint = "none";
+            };
+          };
+          "encrypted/ephemeral/root" = {
+            type = "zfs_fs";
+            mountpoint = "/";
+            postCreateHook = "zfs list -t snapshot -H -o name | grep -E '^zroot/encrypted/ephemeral/root@blank$' || zfs snapshot zroot/encrypted/ephemeral/root@blank";
+          };
+          "encrypted/ephemeral/tmp" = {
+            type = "zfs_fs";
+            mountpoint = "/tmp";
+            options = {
+              quota = "32G";
+              sync = "disabled";
+              redundant_metadata = "none";
+            };
+          };
+
+          # Safe/persistent datasets (survives reboot, backed up)
+          "encrypted/safe" = {
+            type = "zfs_fs";
+            options = {
+              canmount = "off";
+              mountpoint = "none";
+            };
+          };
+          "encrypted/safe/home" = {
+            type = "zfs_fs";
+            mountpoint = "/home";
+          };
+          "encrypted/safe/nix" = {
+            type = "zfs_fs";
+            mountpoint = "/nix";
+            options.atime = "off";
+          };
+          "encrypted/safe/persist" = {
+            type = "zfs_fs";
+            mountpoint = "/persist";
+          };
+          "encrypted/safe/var-log" = {
+            type = "zfs_fs";
+            mountpoint = "/var/log";
+            options.quota = "10G";
+          };
+          "encrypted/safe/cache" = {
+            type = "zfs_fs";
+            mountpoint = "/var/cache";
+            options.quota = "20G";
+          };
+        };
+      };
+    };
+  };
+}

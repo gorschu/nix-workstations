@@ -1,0 +1,15 @@
+result
+.direnv
+
+# Secret files - SSH host keys (unencrypted only)
+extra-files/**/ssh_host_*_key
+!extra-files/**/ssh_host_*_key.enc
+!extra-files/**/ssh_host_*_key.pub
+
+# Terraform
+terraform/.terraform/
+terraform/.terraform.lock.hcl
+terraform/terraform.tfstate
+terraform/terraform.tfstate.*backup
+terraform/*.tfvars
+terraform/*.log

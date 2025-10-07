@@ -8,9 +8,6 @@
   # Disk device for disko
   disko.devices.disk.main.device = "/dev/disk/by-id/nvme-SAMSUNG_MZVLW512HMJP-000L7_S359NX0HC16935_1";
 
-  # Hardware configuration via nixos-facter
-  facter.reportPath = ./facter.json;
-
   nixpkgs.hostPlatform = "x86_64-linux";
   networking.hostName = "hephaestus";
 

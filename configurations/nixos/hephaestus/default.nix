@@ -5,5 +5,7 @@
   imports = [
     ./profiles/base.nix
   ];
-}
 
+  # Hardware configuration via nixos-facter
+  facter.reportPath = ./facter.json;
+}

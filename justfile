@@ -81,6 +81,15 @@ deploy HOST TARGET SSH_KEY='':
   export NIX_SSHOPTS="$SSH_OPTS"
   nixos-rebuild switch --flake .#{{HOST}} --target-host root@{{TARGET}}
 
+# Deploy configuration to localhost
+[group('deploy')]
+deploy-local:
+  #!/usr/bin/env bash
+  set -euo pipefail
+  HOST=$(hostnamectl hostname)
+  echo "Deploying configuration for host: ${HOST}"
+  sudo nixos-rebuild switch --flake .#${HOST}
+
 # Install with VM test (dry-run)
 [group('deploy')]
 install-vm HOST='hephaestus':

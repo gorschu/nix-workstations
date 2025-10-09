@@ -118,3 +118,18 @@ vm-console NAME='nixos-test':
 [group('vm')]
 vm-eject-cdrom NAME='nixos-test':
   virsh -c qemu:///system change-media {{NAME}} sdb --eject
+
+# Regenerate facter.json for current host
+[group('setup')]
+regenerate-facter:
+  #!/usr/bin/env bash
+  set -euo pipefail
+  HOST=$(hostnamectl hostname)
+  FACTER_PATH="configurations/nixos/${HOST}/facter.json"
+
+  echo "Regenerating facter.json for host: ${HOST}"
+  echo "Output will be written to: ${FACTER_PATH}"
+
+  sudo nix run github:nix-community/nixos-facter > "${FACTER_PATH}"
+
+  echo "Successfully regenerated ${FACTER_PATH}"

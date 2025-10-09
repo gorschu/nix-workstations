@@ -24,6 +24,10 @@
         # Detect secrets in code
         trufflehog.enable = true;
 
+        # Lint commit messages (requires conventional commits)
+        # Configuration in .gitlint file
+        gitlint.enable = true;
+
         # Ensure all files in secrets/ are SOPS-encrypted
         check-secrets-encrypted = {
           enable = true;

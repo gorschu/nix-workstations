@@ -1,11 +1,6 @@
 result
 .direnv
 
-# Secret files - SSH host keys (unencrypted only)
-extra-files/**/ssh_host_*_key
-!extra-files/**/ssh_host_*_key.enc
-!extra-files/**/ssh_host_*_key.pub
-
 # Terraform
 terraform/.terraform/
 terraform/.terraform.lock.hcl

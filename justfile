@@ -6,18 +6,21 @@
 default:
   @just --list
 
-# Decrypt SSH host keys after cloning repository
+# Decrypt SSH host keys for specific host (they are SOPS-encrypted in git)
 [group('setup')]
-decrypt-keys:
+decrypt-keys HOST:
   #!/usr/bin/env bash
   set -euo pipefail
-  for enc_key in $(find extra-files -name "ssh_host_*_key.enc" -type f); do
-    dec_key="${enc_key%.enc}"
-    echo "Decrypting ${enc_key} -> ${dec_key}"
-    sops -d "${enc_key}" > "${dec_key}"
-    chmod 600 "${dec_key}"
+  # Decrypt keys for specific host only
+  BASE_HOST="{{HOST}}"
+  BASE_HOST="${BASE_HOST%-vm}"
+  for key in extra-files/${BASE_HOST}/etc/ssh/ssh_host_*_key; do
+    [ -f "$key" ] || continue
+    echo "Decrypting ${key}"
+    sops -d -i "${key}"
+    chmod 600 "${key}"
   done
-  echo "All SSH host keys decrypted successfully"
+  echo "SSH host keys decrypted successfully"
 
 # Update nix flake
 [group('Main')]
@@ -52,6 +55,12 @@ install TARGET HOST='hephaestus' EXTRA_ARGS='':
   # Strip -vm suffix for extra-files path only (VM uses same secrets)
   BASE_HOST="{{HOST}}"
   BASE_HOST="${BASE_HOST%-vm}"
+
+  # Decrypt SSH host keys before installation
+  echo "Decrypting SSH host keys for ${BASE_HOST}..."
+  just decrypt-keys {{HOST}}
+
+  # Run nixos-anywhere
   nix run github:nix-community/nixos-anywhere -- \
     --flake .#{{HOST}} \
     --extra-files extra-files/${BASE_HOST} \

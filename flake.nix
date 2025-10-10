@@ -30,6 +30,10 @@
     # Development tooling
     git-hooks.url = "github:cachix/git-hooks.nix";
     git-hooks.inputs.nixpkgs.follows = "nixpkgs";
+
+    # Deployment tooling
+    colmena.url = "github:zhaofengli/colmena";
+    colmena.inputs.nixpkgs.follows = "nixpkgs";
   };
 
   # Wired using https://nixos-unified.org/autowiring.html

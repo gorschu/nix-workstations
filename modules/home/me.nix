@@ -1,4 +1,5 @@
-# User configuration module
+# User metadata module
+# Defines core user information used across home-manager configuration
 { config, lib, ... }:
 {
   options = {
@@ -22,7 +23,9 @@
       };
     };
   };
+
   config = {
+    # Set home.username from me.username
     home.username = config.me.username;
   };
 }

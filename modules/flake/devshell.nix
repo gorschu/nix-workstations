@@ -1,6 +1,7 @@
+{ inputs, ... }:
 {
   perSystem =
-    { config, pkgs, ... }:
+    { pkgs, ... }:
     {
       devShells.default = pkgs.mkShell {
         name = "nixos-unified-template-shell";
@@ -10,12 +11,8 @@
           nixd
           nixos-rebuild
           omnix
+          inputs.colmena.packages.${pkgs.system}.colmena
         ];
-
-        # Install pre-commit hooks on shell entry
-        shellHook = ''
-          ${config.pre-commit.installationScript}
-        '';
       };
     };
 }

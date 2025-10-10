@@ -7,7 +7,7 @@
 }:
 let
   inherit (flake.inputs) self;
-  cfg = config.nixconfig.restic-backup;
+  cfg = config.nixconfig.storage.backup;
 
   # Target type definition
   targetType = lib.types.submodule (_: {
@@ -54,7 +54,7 @@ let
   });
 in
 {
-  options.nixconfig.restic-backup = {
+  options.nixconfig.storage.backup = {
     enable = lib.mkOption {
       type = lib.types.bool;
       default = false;

@@ -8,8 +8,6 @@ in
 {
   imports = [
     self.nixosModules.default
-    self.nixosModules.gui
-    self.nixosModules.zfs
 
     # System infrastructure
     inputs.disko.nixosModules.disko
@@ -20,4 +18,8 @@ in
     ../disko.nix
     ../configuration.nix
   ];
+
+  # Enable GUI and ZFS for this machine
+  nixconfig.gui.enable = true;
+  nixconfig.storage.zfs.enable = true;
 }

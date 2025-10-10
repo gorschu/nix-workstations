@@ -1,14 +1,26 @@
-{ flake, ... }:
+{ config, lib, ... }:
+let
+  inherit (builtins) readDir attrNames filter;
+  cfg = config.nixconfig.gui;
+in
 {
-  imports = [
-    ./gnome.nix
-    ./fonts.nix
-    flake.inputs.self.nixosModules._1password
-  ];
+  # Always import GUI modules (they have their own enable guards)
+  imports = map (fn: ./${fn}) (filter (fn: fn != "default.nix") (attrNames (readDir ./.)));
 
-  # Enable GNOME by default when gui module is imported
-  nixconfig.gnome.enable = true;
+  options.nixconfig.gui = {
+    enable = lib.mkOption {
+      type = lib.types.bool;
+      default = false;
+      description = "Enable GUI environment";
+    };
+  };
 
-  # Enable 1Password by default for GUI systems
-  nixconfig._1password.enable = true;
+  config = lib.mkIf cfg.enable {
+    # GNOME, fonts, and 1Password enabled by default when GUI is enabled
+    nixconfig = {
+      gnome.enable = lib.mkDefault true;
+      gui.fonts.enable = lib.mkDefault true;
+      _1password.enable = lib.mkDefault true;
+    };
+  };
 }

@@ -8,6 +8,9 @@ in
     self.homeModules.default
   ];
 
+  # Enable GUI modules for this user
+  homeconfig.gui.enable = true;
+
   # Defined by /modules/home/me.nix
   # And used all around in /modules/home/*
   me = {

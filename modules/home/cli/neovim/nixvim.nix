@@ -13,7 +13,10 @@
         rev = "d69e3ecb1d1d04a776ef01e2bca3f0eb8a7c9302";
         hash = "sha256-kHeDyST9eg1KVTHkvtr1WycLZgCKaVVVyQCfpYPykWw=";
       };
-      dependencies = [ nui-nvim render-markdown-nvim ];
+      dependencies = [
+        nui-nvim
+        render-markdown-nvim
+      ];
     })
   ];
 

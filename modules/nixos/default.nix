@@ -1,9 +1,11 @@
-# This is your nixos configuration.
-# For home configuration, see /modules/home/*
-{ flake, ... }:
+# Core NixOS configuration
+# Imports all module categories (core/storage/gui/virt)
+# Control what's enabled via nixconfig.* options
 {
   imports = [
-    flake.inputs.self.nixosModules.common
-    flake.inputs.self.nixosModules.systemd-boot
+    ./core
+    ./storage
+    ./gui
+    ./virt
   ];
 }

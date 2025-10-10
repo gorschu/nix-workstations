@@ -1,8 +1,10 @@
-# A module that automatically imports everything else in the parent folder.
+# Core home-manager configuration
+# Import user metadata and module groups
+# Control what's enabled via homeconfig.cli.enable and homeconfig.gui.enable
 {
-  imports =
-    with builtins;
-    map
-      (fn: ./${fn})
-      (filter (fn: fn != "default.nix") (attrNames (readDir ./.)));
+  imports = [
+    ./me.nix # User metadata (always loaded)
+    ./cli
+    ./gui
+  ];
 }

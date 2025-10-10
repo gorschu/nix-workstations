@@ -5,10 +5,10 @@
   ...
 }:
 let
-  cfg = config.nixconfig.zfs;
+  cfg = config.nixconfig.storage.zfs;
 in
 {
-  options.nixconfig.zfs = {
+  options.nixconfig.storage.zfs = {
     enable = lib.mkOption {
       type = lib.types.bool;
       default = false;

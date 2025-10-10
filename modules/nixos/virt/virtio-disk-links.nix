@@ -1,6 +1,6 @@
 { config, lib, ... }:
 let
-  cfg = config.nixconfig.virtio-disk-links;
+  cfg = config.nixconfig.virt.virtioDiskLinks;
 
   # Udev rules for creating stable virtio disk links
   virtioUdevRules = ''
@@ -14,7 +14,7 @@ let
   '';
 in
 {
-  options.nixconfig.virtio-disk-links = {
+  options.nixconfig.virt.virtioDiskLinks = {
     enable = lib.mkOption {
       type = lib.types.bool;
       default = false;

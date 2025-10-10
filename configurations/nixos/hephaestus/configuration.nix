@@ -1,9 +1,7 @@
 # Hardware and system-specific configuration for hephaestus
 { config, flake, ... }:
 {
-  imports = [
-    flake.inputs.self.nixosModules.restic-backup
-  ];
+  # No extra imports needed - restic-backup is now part of storage module
 
   # Disk device for disko
   disko.devices.disk.main.device = "/dev/disk/by-id/nvme-SAMSUNG_MZVLW512HMJP-000L7_S359NX0HC16935_1";
@@ -11,8 +9,8 @@
   nixpkgs.hostPlatform = "x86_64-linux";
   networking.hostName = "hephaestus";
 
-  # Enable ZFS support
-  nixconfig.zfs.enable = true;
+  # Storage configuration (moved to base.nix)
+  # nixconfig.storage.zfs.enable is set in profiles/base.nix
 
   # SOPS secrets for user passwords
   sops.secrets."root/password" = {
@@ -37,17 +35,17 @@
   };
 
   # Enable restic backups
-  nixconfig.restic-backup = {
+  nixconfig.storage.backup = {
     enable = true;
     # bucketName = "gorschu-backup-workstations";  # default, can override for servers
     targets = {
       b2 = {
-        repository = "b2:${config.nixconfig.restic-backup.bucketName}:/backup-${config.networking.hostName}";
+        repository = "b2:${config.nixconfig.storage.backup.bucketName}:/backup-${config.networking.hostName}";
         backend = "b2";
       };
       # Optional: Add Scaleway as second target (uses S3-compatible API)
       # scaleway = {
-      #   repository = "s3:s3.nl-ams.scw.cloud/${config.nixconfig.restic-backup.bucketName}/backup-${config.networking.hostName}";
+      #   repository = "s3:s3.nl-ams.scw.cloud/${config.nixconfig.storage.backup.bucketName}/backup-${config.networking.hostName}";
       #   backend = "s3";
       # };
     };

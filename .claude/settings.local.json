@@ -10,7 +10,11 @@
       "WebFetch(domain:flake.parts)",
       "Bash(nix flake check:*)",
       "WebFetch(domain:nixos-unified.org)",
-      "WebFetch(domain:colmena.cli.rs)"
+      "WebFetch(domain:colmena.cli.rs)",
+      "Bash(git add:*)",
+      "Bash(nixfmt:*)",
+      "WebFetch(domain:home-manager-options.extranix.com)",
+      "WebFetch(domain:ghostty.org)"
     ],
     "deny": [],
     "ask": []

@@ -18,8 +18,9 @@
         # Check flake inputs
         flake-checker.enable = true;
 
-        # Nix linter
-        statix.enable = true;
+        # Nix linter - disabled due to false positives with flake-parts
+        # (W20 repeated keys warning is expected in flake-parts structure)
+        # statix.enable = true;
 
         # Detect secrets in code
         trufflehog.enable = true;

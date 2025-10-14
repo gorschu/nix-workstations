@@ -1,18 +1,9 @@
-# Top-level flake glue to get our configuration working
-{ inputs, ... }:
-
-{
-  imports = [
-    inputs.nixos-unified.flakeModules.default
-    inputs.nixos-unified.flakeModules.autoWire
-  ];
+# Top-level flake configuration
+_: {
   perSystem =
-    { self', pkgs, ... }:
+    { pkgs, ... }:
     {
       # For 'nix fmt'
       formatter = pkgs.nixfmt;
-
-      # Enables 'nix run' to activate.
-      packages.default = self'.packages.activate;
     };
 }

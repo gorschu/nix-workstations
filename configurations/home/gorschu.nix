@@ -1,15 +1,17 @@
-{ flake, ... }:
-let
-  inherit (flake) inputs;
-  inherit (inputs) self;
-in
+{ inputs, ... }:
 {
   imports = [
-    self.homeModules.default
+    inputs.self.homeModules.default
   ];
 
   # Enable GUI modules for this user
   homeconfig.gui.enable = true;
+
+  # SSH configuration
+  homeconfig.cli.ssh = {
+    secretConfigs = [ "personal" ]; # Add "work" when you have it
+    keys = [ "ssh-key-seedbox_ed25519" ]; # Your test key
+  };
 
   # Defined by /modules/home/me.nix
   # And used all around in /modules/home/*

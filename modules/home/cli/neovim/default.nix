@@ -1,7 +1,7 @@
 {
   config,
   lib,
-  flake,
+  inputs,
   pkgs,
   ...
 }:
@@ -10,7 +10,7 @@ let
 in
 {
   imports = [
-    flake.inputs.nixvim.homeModules.nixvim
+    inputs.nixvim.homeModules.nixvim
   ];
 
   config = lib.mkIf (cfg.enable && cfg.editor.enable) {

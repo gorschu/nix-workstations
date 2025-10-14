@@ -1,11 +1,11 @@
 {
   config,
   lib,
-  flake,
+  inputs,
   ...
 }:
 let
-  inherit (flake.inputs) self;
+  inherit (inputs) self;
   cfg = config.nixconfig.networking;
 in
 {

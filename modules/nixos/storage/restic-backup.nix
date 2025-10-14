@@ -2,11 +2,11 @@
   config,
   lib,
   pkgs,
-  flake,
+  inputs,
   ...
 }:
 let
-  inherit (flake.inputs) self;
+  inherit (inputs) self;
   cfg = config.nixconfig.storage.backup;
 
   # Target type definition

@@ -1,12 +1,12 @@
 # List of users for nixos system and their top-level configuration.
 {
-  flake,
+  inputs,
   lib,
   config,
   ...
 }:
 let
-  inherit (flake.inputs) self;
+  inherit (inputs) self;
   mapListToAttrs =
     m: f:
     lib.listToAttrs (

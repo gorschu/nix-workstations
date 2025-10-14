@@ -1,5 +1,5 @@
 # Hardware and system-specific configuration for hephaestus
-{ config, flake, ... }:
+{ config, inputs, ... }:
 {
   # No extra imports needed - restic-backup is now part of storage module
 
@@ -14,11 +14,11 @@
 
   # SOPS secrets for user passwords
   sops.secrets."root/password" = {
-    sopsFile = flake.inputs.self + /secrets/hosts/${config.networking.hostName}/users.yaml;
+    sopsFile = inputs.self + /secrets/hosts/${config.networking.hostName}/users.yaml;
     neededForUsers = true;
   };
   sops.secrets."gorschu/password" = {
-    sopsFile = flake.inputs.self + /secrets/hosts/${config.networking.hostName}/users.yaml;
+    sopsFile = inputs.self + /secrets/hosts/${config.networking.hostName}/users.yaml;
     neededForUsers = true;
   };
 
@@ -35,19 +35,27 @@
   };
 
   # Enable restic backups
-  nixconfig.storage.backup = {
-    enable = true;
-    # bucketName = "gorschu-backup-workstations";  # default, can override for servers
-    targets = {
-      b2 = {
-        repository = "b2:${config.nixconfig.storage.backup.bucketName}:/backup-${config.networking.hostName}";
-        backend = "b2";
+  nixconfig = {
+    networking.tailscale = {
+      enable = true;
+      autoconnect = true;
+    };
+    storage = {
+      backup = {
+        enable = true;
+        # bucketName = "gorschu-backup-workstations";  # default, can override for servers
+        targets = {
+          b2 = {
+            repository = "b2:${config.nixconfig.storage.backup.bucketName}:/backup-${config.networking.hostName}";
+            backend = "b2";
+          };
+          # Optional: Add Scaleway as second target (uses S3-compatible API)
+          # scaleway = {
+          #   repository = "s3:s3.nl-ams.scw.cloud/${config.nixconfig.storage.backup.bucketName}/backup-${config.networking.hostName}";
+          #   backend = "s3";
+          # };
+        };
       };
-      # Optional: Add Scaleway as second target (uses S3-compatible API)
-      # scaleway = {
-      #   repository = "s3:s3.nl-ams.scw.cloud/${config.nixconfig.storage.backup.bucketName}/backup-${config.networking.hostName}";
-      #   backend = "s3";
-      # };
     };
   };
 

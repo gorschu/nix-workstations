@@ -29,6 +29,13 @@ in
 
       # GNOME Adwaita fonts
       adwaita-fonts
+
+      # Microsoft font replacements (available system-wide)
+      dejavu_fonts # Verdana replacement
+      liberation_ttf # Arial, Times New Roman, Courier New
+      gelasio # Georgia replacement
+      noto-fonts
+      noto-fonts-emoji
     ];
 
     # Font configuration for modern displays with excellent readability

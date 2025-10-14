@@ -12,6 +12,7 @@
           nixos-rebuild
           omnix
           inputs.colmena.packages.${pkgs.system}.colmena
+          sops
         ];
       };
     };

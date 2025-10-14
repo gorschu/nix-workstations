@@ -5,10 +5,10 @@
   ...
 }:
 let
-  cfg = config.homeconfig.cli;
+  cfg = config.homeconfig.gui;
 in
 {
-  config = lib.mkIf (cfg.enable && cfg.shell.enable) {
+  config = lib.mkIf cfg.enable {
     # Ghostty terminal emulator
     programs.ghostty = {
       enable = true;
@@ -16,6 +16,17 @@ in
       enableZshIntegration = true;
       installBatSyntax = true;
       installVimSyntax = true;
+
+      settings = {
+        # Enable all shell integration features
+        shell-integration-features = [
+          "cursor" # Blinking bar cursor at prompt
+          "sudo" # Preserve terminfo with sudo
+          "title" # Set window title via shell integration
+          "ssh-env" # SSH environment variable compatibility
+          "ssh-terminfo" # Automatic terminfo installation on remote hosts
+        ];
+      };
     };
 
     # Ptyxis terminal emulator (GNOME)

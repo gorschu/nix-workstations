@@ -1,13 +1,8 @@
 # Shared base configuration for hephaestus (both physical and VM)
-{ flake, ... }:
-
-let
-  inherit (flake) inputs;
-  inherit (inputs) self;
-in
+{ inputs, ... }:
 {
   imports = [
-    self.nixosModules.default
+    inputs.self.nixosModules.default
 
     # System infrastructure
     inputs.disko.nixosModules.disko

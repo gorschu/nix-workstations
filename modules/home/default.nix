@@ -4,6 +4,7 @@
 {
   imports = [
     ./me.nix # User metadata (always loaded)
+    ./sops.nix # SOPS configuration (always loaded)
     ./cli
     ./gui
   ];

@@ -1,7 +1,7 @@
 {
   config,
   lib,
-  flake,
+  inputs,
   ...
 }:
 let
@@ -11,7 +11,7 @@ in
   imports = [
     # NOTE: The nix-index DB is slow to search, until
     # https://github.com/nix-community/nix-index-database/issues/130
-    flake.inputs.nix-index-database.homeModules.nix-index
+    inputs.nix-index-database.homeModules.nix-index
   ];
 
   config = lib.mkIf (cfg.enable && cfg.development.enable) {

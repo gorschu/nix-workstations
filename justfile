@@ -90,7 +90,6 @@ deploy-local:
 install-vm HOST='hephaestus':
   nix run github:nix-community/nixos-anywhere -- \
     --flake .#{{HOST}} \
-    --extra-files extra-files/{{HOST}} \
     --vm-test
 
 # Create test VM with Terraform

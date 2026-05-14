@@ -20,6 +20,22 @@
       };
     };
 
+    fonts = {
+      enable = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Enable font configuration and substitutions";
+      };
+    };
+
+    terminals = {
+      enable = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Enable terminal emulator configuration (ghostty, ptyxis)";
+      };
+    };
+
     desktop = {
       enable = lib.mkOption {
         type = lib.types.bool;

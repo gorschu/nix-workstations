@@ -2,8 +2,6 @@
 { inputs, ... }:
 {
   imports = [
-    inputs.self.nixosModules.default
-
     # System infrastructure
     inputs.disko.nixosModules.disko
     inputs.nixos-facter-modules.nixosModules.facter

@@ -9,13 +9,9 @@ let
 in
 {
   config = lib.mkIf (cfg.enable && cfg.system.enable) {
-    # To use the `nix` from `inputs.nixpkgs` on templates using the standalone `home-manager` template
-
-    # `nix.package` is already set if on `NixOS`.
-    # TODO: Avoid setting `nix.package` in two places when Home Manager runs on NixOS.
     nix.package = lib.mkDefault pkgs.nix;
-    home.packages = [
-      config.nix.package
-    ];
+    # Only add nix to user packages on standalone HM; on NixOS, nix.enable is
+    # false (NixOS manages the nix daemon) and nix is already system-wide.
+    home.packages = lib.mkIf config.nix.enable [ config.nix.package ];
   };
 }

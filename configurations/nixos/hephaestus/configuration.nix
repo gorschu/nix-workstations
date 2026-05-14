@@ -36,9 +36,12 @@
 
   # Enable restic backups
   nixconfig = {
-    networking.tailscale = {
+    networking = {
       enable = true;
-      autoconnect = true;
+      tailscale = {
+        enable = true;
+        autoconnect = true;
+      };
     };
     storage = {
       backup = {

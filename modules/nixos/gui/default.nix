@@ -11,7 +11,10 @@ in
     enable = lib.mkOption {
       type = lib.types.bool;
       default = false;
-      description = "Enable GUI environment";
+      description = ''
+        Enable GUI environment. Implicitly enables nixconfig.gnome, nixconfig.gui.fonts,
+        and nixconfig._1password via mkDefault. Override any of them with = false.
+      '';
     };
   };
 

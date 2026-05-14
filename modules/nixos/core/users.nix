@@ -75,10 +75,7 @@ in
       groups = mapListToAttrs config.myusers (_name: { });
     };
 
-    # All users can add Nix caches.
-    nix.settings.trusted-users = [
-      "root"
-    ]
-    ++ config.myusers;
+    # All users can add Nix caches. @wheel covers sudoers.
+    nix.settings.trusted-users = [ "root" "@wheel" ] ++ config.myusers;
   };
 }

@@ -9,12 +9,13 @@ let
 in
 {
   config = lib.mkIf (cfg.enable && cfg.shell.enable) {
+    home.shellAliases = {
+      ssh-yolo = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null";
+    };
+
     programs = {
       bash = {
         enable = true;
-        shellAliases = {
-          ssh-yolo = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null";
-        };
         # bashrcExtra runs at the very top of .bashrc, before any other initialization
         # This is ideal for exec'ing zsh early, avoiding unnecessary bash setup
         bashrcExtra = ''
@@ -50,9 +51,6 @@ in
         logoutExtra = ''
           # Custom ~/.zlogout goes here
         '';
-        shellAliases = {
-          ssh-yolo = "ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null";
-        };
       };
 
       # Type `z <pat>` to cd to some directory

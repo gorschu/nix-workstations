@@ -7,7 +7,7 @@ let
   cfg = config.homeconfig.gui;
 in
 {
-  config = lib.mkIf cfg.enable {
+  config = lib.mkIf (cfg.enable && cfg.fonts.enable) {
     # Font configuration with Microsoft font substitutions
     fonts.fontconfig = {
       enable = true;

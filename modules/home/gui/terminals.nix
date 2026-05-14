@@ -8,7 +8,7 @@ let
   cfg = config.homeconfig.gui;
 in
 {
-  config = lib.mkIf cfg.enable {
+  config = lib.mkIf (cfg.enable && cfg.terminals.enable) {
     # Ghostty terminal emulator
     programs.ghostty = {
       enable = true;

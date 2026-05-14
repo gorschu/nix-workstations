@@ -256,7 +256,6 @@ in
 
                 # Only try to notify graphical sessions (X11 or Wayland)
                 if [ "$session_type" = "wayland" ] || [ "$session_type" = "x11" ]; then
-                  user_id=$(id -u "$user")
                   # Use systemd-run to run in user's session context
                   ${pkgs.systemd}/bin/systemd-run --machine="$user@.host" --user --collect --wait \
                     ${pkgs.libnotify}/bin/notify-send --urgency=critical "Backup Failed" "System backup failed. Check 'journalctl -u $SERVICE_NAME'" 2>&1 || true
@@ -297,7 +296,6 @@ in
 
                   # Only try to notify graphical sessions (X11 or Wayland)
                   if [ "$session_type" = "wayland" ] || [ "$session_type" = "x11" ]; then
-                    user_id=$(id -u "$user")
                     # Use systemd-run to run in user's session context
                     ${pkgs.systemd}/bin/systemd-run --machine="$user@.host" --user --collect --wait \
                       ${pkgs.libnotify}/bin/notify-send --urgency=critical "Backup Alert" "$message" 2>&1 || true

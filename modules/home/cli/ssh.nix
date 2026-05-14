@@ -32,7 +32,7 @@ in
     };
   };
 
-  config = lib.mkIf cfg.enable {
+  config = lib.mkIf (cfg.enable && cfg.system.enable) {
     # SSH client configuration
     programs.ssh = {
       enable = true;

@@ -10,6 +10,8 @@ let
 in
 {
   options.nixconfig.networking = {
+    enable = lib.mkEnableOption "personal WiFi profiles and NetworkManager setup";
+
     waitOnline = lib.mkOption {
       type = lib.types.bool;
       default = false;
@@ -17,7 +19,7 @@ in
     };
   };
 
-  config = {
+  config = lib.mkIf cfg.enable {
     networking = {
       networkmanager.enable = true;
 
@@ -82,7 +84,6 @@ in
       };
     };
 
-    # Wait for network based on configuration
     # Disable for laptops (may have disconnected ethernet interfaces)
     # Enable for servers (need network for services)
     systemd.services.NetworkManager-wait-online.enable = cfg.waitOnline;

@@ -106,12 +106,12 @@ In your host configuration (e.g., `configurations/nixos/hephaestus/configuration
 
 ```nix
 {
-  nixconfig.restic-backup = {
+  nixconfig.storage.backup = {
     enable = true;
     # bucketName defaults to "gorschu-backup-workstations"
     targets = {
       b2 = {
-        repository = "b2:${config.nixconfig.restic-backup.bucketName}:/backup-${config.networking.hostName}";
+        repository = "b2:${config.nixconfig.storage.backup.bucketName}:/backup-${config.networking.hostName}";
         backend = "b2";
       };
     };
@@ -123,12 +123,12 @@ In your host configuration (e.g., `configurations/nixos/hephaestus/configuration
 
 ```nix
 {
-  nixconfig.restic-backup = {
+  nixconfig.storage.backup = {
     enable = true;
     bucketName = "gorschu-backup-servers";  # Different bucket for servers
     targets = {
       b2 = {
-        repository = "b2:${config.nixconfig.restic-backup.bucketName}:/backup-${config.networking.hostName}";
+        repository = "b2:${config.nixconfig.storage.backup.bucketName}:/backup-${config.networking.hostName}";
         backend = "b2";
       };
     };
@@ -140,15 +140,15 @@ In your host configuration (e.g., `configurations/nixos/hephaestus/configuration
 
 ```nix
 {
-  nixconfig.restic-backup = {
+  nixconfig.storage.backup = {
     enable = true;
     targets = {
       b2 = {
-        repository = "b2:${config.nixconfig.restic-backup.bucketName}:/backup-${config.networking.hostName}";
+        repository = "b2:${config.nixconfig.storage.backup.bucketName}:/backup-${config.networking.hostName}";
         backend = "b2";
       };
       scaleway = {
-        repository = "s3:s3.nl-ams.scw.cloud/${config.nixconfig.restic-backup.bucketName}/backup-${config.networking.hostName}";
+        repository = "s3:s3.nl-ams.scw.cloud/${config.nixconfig.storage.backup.bucketName}/backup-${config.networking.hostName}";
         backend = "s3";  # All S3-compatible providers use backend = "s3"
       };
     };
@@ -160,7 +160,7 @@ In your host configuration (e.g., `configurations/nixos/hephaestus/configuration
 
 ```nix
 {
-  nixconfig.restic-backup = {
+  nixconfig.storage.backup = {
     enable = true;
 
     # Global defaults
@@ -463,7 +463,7 @@ Example configuration:
 
 ```nix
 {
-  nixconfig.restic-backup = {
+  nixconfig.storage.backup = {
     enable = true;
 
     defaultTimerConfig = {

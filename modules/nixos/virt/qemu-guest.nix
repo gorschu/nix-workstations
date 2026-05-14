@@ -33,6 +33,5 @@ in
         RestartSec = "5";
       };
     };
-    systemd.user.services.spice-vdagent-client.enable = lib.mkDefault true;
   };
 }

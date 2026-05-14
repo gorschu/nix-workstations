@@ -35,6 +35,12 @@ variable "disk_size_gb" {
   default     = 100
 }
 
+variable "ovmf_firmware" {
+  description = "Path to OVMF firmware on the libvirt host (NixOS: /run/libvirt/nix-helpers/OVMF_CODE.fd)"
+  type        = string
+  default     = "/run/libvirt/nix-helpers/OVMF_CODE.fd"
+}
+
 # Download nixos-images installer ISO (shared across VMs, uses default images pool)
 resource "libvirt_volume" "nixos_installer_iso" {
   name   = "nixos-installer-x86_64-linux.iso"
@@ -60,7 +66,7 @@ resource "libvirt_domain" "nixos_vm" {
   memory = var.memory_mb
   vcpu   = var.vcpus
 
-  firmware = "/usr/share/edk2/x64/OVMF_CODE.4m.fd"
+  firmware = var.ovmf_firmware
 
   cpu {
     mode = "host-passthrough"

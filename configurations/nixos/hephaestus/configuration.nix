@@ -44,6 +44,7 @@
       };
     };
     storage = {
+      zswap.enable = true;
       backup = {
         enable = true;
         # bucketName = "gorschu-backup-workstations";  # default, can override for servers

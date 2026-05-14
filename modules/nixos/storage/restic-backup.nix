@@ -120,11 +120,11 @@ in
       example = lib.literalExpression ''
         {
           b2 = {
-            repository = "b2:''${config.nixconfig.restic-backup.bucketName}:/backup-''${config.networking.hostName}";
+            repository = "b2:''${config.nixconfig.storage.backup.bucketName}:/backup-''${config.networking.hostName}";
             backend = "b2";
           };
           scaleway = {
-            repository = "s3:s3.nl-ams.scw.cloud/''${config.nixconfig.restic-backup.bucketName}/backup-''${config.networking.hostName}";
+            repository = "s3:s3.nl-ams.scw.cloud/''${config.nixconfig.storage.backup.bucketName}/backup-''${config.networking.hostName}";
             backend = "s3";  # Scaleway uses S3-compatible API
           };
           aws = {

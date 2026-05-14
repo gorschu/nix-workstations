@@ -42,11 +42,6 @@ check:
 dev:
   nix develop
 
-# Activate the configuration
-[group('Main')]
-run:
-  nix run
-
 # Install NixOS to remote target via nixos-anywhere
 [group('deploy')]
 install TARGET HOST='hephaestus' EXTRA_ARGS='':

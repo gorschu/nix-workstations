@@ -18,17 +18,14 @@ in
     programs = {
       git = {
         enable = true;
-        # Use config.me.* for user metadata defined in modules/home/me.nix
-        userName = config.me.fullname;
-        userEmail = config.me.email;
         ignores = [
           "*~"
           "*.swp"
         ];
-        aliases = {
-          ci = "commit";
-        };
-        extraConfig = {
+        settings = {
+          user.name = config.me.fullname;
+          user.email = config.me.email;
+          alias.ci = "commit";
           init.defaultBranch = "main";
         };
       };

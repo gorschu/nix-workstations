@@ -64,5 +64,5 @@
 
   # Used for backwards compatibility, please read the changelog before changing.
   # $ nixos-rebuild changelog
-  system.stateVersion = "25.11";
+  system.stateVersion = "26.05";
 }

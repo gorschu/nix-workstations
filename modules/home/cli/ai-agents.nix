@@ -19,7 +19,7 @@ in
         # Codex configuration in ~/.codex/config.yaml
         # Add your preferred settings here
       };
-      custom-instructions = ''
+      context = ''
         # Custom instructions for Codex agents in ~/.codex/AGENTS.md
         # Add your coding guidelines and preferences here
       '';

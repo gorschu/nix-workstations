@@ -35,7 +35,7 @@ in
       liberation_ttf # Arial, Times New Roman, Courier New
       gelasio # Georgia replacement
       noto-fonts
-      noto-fonts-emoji
+      noto-fonts-color-emoji
     ];
 
     # Font configuration for modern displays with excellent readability

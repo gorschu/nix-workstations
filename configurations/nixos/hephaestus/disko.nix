@@ -68,6 +68,18 @@
               mountpoint = "none";
             };
           };
+          "encrypted/ephemeral/swap" = {
+            type = "zfs_volume";
+            size = "8G";
+            options = {
+              volblocksize = "4096";
+              sync = "always";         # safe for swap on ZFS
+              primarycache = "metadata"; # don't cache swap pages in ARC
+              secondarycache = "none";
+              compression = "zle";     # only compress zero pages; zswap handles the rest
+            };
+            content.type = "swap";
+          };
           "encrypted/ephemeral/root" = {
             type = "zfs_fs";
             mountpoint = "/";

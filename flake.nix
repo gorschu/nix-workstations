@@ -16,7 +16,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";
     };
-    vertex.url = "github:juspay/vertex";
 
     # System configuration inputs
     disko.url = "github:nix-community/disko";

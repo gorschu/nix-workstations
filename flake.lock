@@ -429,8 +429,7 @@
         "nixos-facter-modules": "nixos-facter-modules",
         "nixpkgs": "nixpkgs",
         "nixvim": "nixvim",
-        "sops-nix": "sops-nix",
-        "vertex": "vertex"
+        "sops-nix": "sops-nix"
       }
     },
     "sops-nix": {
@@ -494,25 +493,6 @@
       "original": {
         "owner": "nix-systems",
         "repo": "default",
-        "type": "github"
-      }
-    },
-    "vertex": {
-      "inputs": {
-        "flake-parts": "flake-parts_2",
-        "nixpkgs": "nixpkgs_3"
-      },
-      "locked": {
-        "lastModified": 1760041618,
-        "narHash": "sha256-iRV6Aa7hSXCDJApeOz4e53J+fbXl7Z3rvVTxf2gfGcU=",
-        "owner": "juspay",
-        "repo": "vertex",
-        "rev": "d7bd80bbc89d24ebee814686cc9e66914015aaec",
-        "type": "github"
-      },
-      "original": {
-        "owner": "juspay",
-        "repo": "vertex",
         "type": "github"
       }
     }

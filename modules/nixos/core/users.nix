@@ -54,6 +54,8 @@ in
     # For home-manager to work.
     # https://github.com/nix-community/home-manager/issues/4026#issuecomment-1565487545
     users = {
+      mutableUsers = false;
+
       users =
         (mapListToAttrs config.myusers (name: {
           isNormalUser = true;
@@ -65,10 +67,13 @@ in
             "audio"
           ];
           openssh.authorizedKeys.keys = config.home-manager.users.${name}.me.sshKeys or [ ];
+          hashedPasswordFile = config.sops.secrets."${name}/password".path;
         }))
         // {
-          # Root SSH keys
-          root.openssh.authorizedKeys.keys = config.rootSshKeys;
+          root = {
+            openssh.authorizedKeys.keys = config.rootSshKeys;
+            hashedPasswordFile = config.sops.secrets."root/password".path;
+          };
         };
 
       # Create per-user groups
@@ -82,23 +87,37 @@ in
     ]
     ++ config.myusers;
 
-    # Provision per-host user age keys so home-manager sops-nix can decrypt
-    # user secrets without any manual key copying. The host SSH key (used by
-    # NixOS sops-nix as root) decrypts the user age key and places it at
-    # /run/secrets/<user>-age-key, owned by that user.
-    # The -vm suffix is stripped so hephaestus-vm reuses hephaestus's key file
-    # (they share the same SSH host keys via just decrypt-keys).
-    sops.secrets = lib.listToAttrs (
-      map (name: {
-        name = "${name}-age-key";
-        value = {
-          sopsFile =
-            self + /secrets/users/${name}/age/${lib.removeSuffix "-vm" config.networking.hostName}.yaml;
-          key = "age-key";
-          owner = name;
-          mode = "0400";
+    sops.secrets = lib.mkMerge [
+      # Per-user age keys: host SSH key bootstraps the user key for home-manager sops.
+      # The -vm suffix is stripped so hephaestus-vm reuses hephaestus's key file.
+      (lib.listToAttrs (
+        map (name: {
+          name = "${name}-age-key";
+          value = {
+            sopsFile =
+              self + /secrets/users/${name}/age/${lib.removeSuffix "-vm" config.networking.hostName}.yaml;
+            key = "age-key";
+            owner = name;
+            mode = "0400";
+          };
+        }) config.myusers
+      ))
+      # User passwords from the host secrets file
+      (lib.listToAttrs (
+        map (name: {
+          name = "${name}/password";
+          value = {
+            sopsFile = self + /secrets/hosts/${config.networking.hostName}/users.yaml;
+            neededForUsers = true;
+          };
+        }) config.myusers
+      ))
+      {
+        "root/password" = {
+          sopsFile = self + /secrets/hosts/${config.networking.hostName}/users.yaml;
+          neededForUsers = true;
         };
-      }) config.myusers
-    );
+      }
+    ];
   };
 }

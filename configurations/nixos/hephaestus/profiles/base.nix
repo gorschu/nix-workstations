@@ -7,8 +7,9 @@
     inputs.nixos-facter-modules.nixosModules.facter
     inputs.sops-nix.nixosModules.sops
 
-    # Disk and hardware configuration
-    ../disko.nix
+    # Shared ZFS workstation disk layout
+    ../../_shared/workstation-disko.nix
+
     ../configuration.nix
   ];
 

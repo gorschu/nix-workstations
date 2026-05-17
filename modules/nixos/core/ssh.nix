@@ -50,8 +50,12 @@ in
       };
     };
 
-    # Ensure SSH host keys have correct permissions (600)
+    # /etc/ssh must be traversable by all users so OpenSSH can read
+    # AuthorizedKeysFile entries — sshd drops to the target user's UID before
+    # opening the file, so a 700 directory silently breaks pubkey auth.
+    # Private host keys are protected individually at 0600.
     systemd.tmpfiles.rules = [
+      "z /etc/ssh 0755 root root - -"
       "z /etc/ssh/ssh_host_* 0600 root root - -"
     ];
   };

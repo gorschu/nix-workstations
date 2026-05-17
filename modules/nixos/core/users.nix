@@ -81,5 +81,24 @@ in
       "@wheel"
     ]
     ++ config.myusers;
+
+    # Provision per-host user age keys so home-manager sops-nix can decrypt
+    # user secrets without any manual key copying. The host SSH key (used by
+    # NixOS sops-nix as root) decrypts the user age key and places it at
+    # /run/secrets/<user>-age-key, owned by that user.
+    # The -vm suffix is stripped so hephaestus-vm reuses hephaestus's key file
+    # (they share the same SSH host keys via just decrypt-keys).
+    sops.secrets = lib.listToAttrs (
+      map (name: {
+        name = "${name}-age-key";
+        value = {
+          sopsFile =
+            self + /secrets/users/${name}/age/${lib.removeSuffix "-vm" config.networking.hostName}.yaml;
+          key = "age-key";
+          owner = name;
+          mode = "0400";
+        };
+      }) config.myusers
+    );
   };
 }

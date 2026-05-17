@@ -6,6 +6,7 @@ _: {
         name = "nix-workstations-shell";
         meta.description = "Shell environment for modifying this Nix configuration";
         packages = with pkgs; [
+          age
           just
           nixd
           nixos-rebuild

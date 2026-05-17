@@ -1,31 +1,47 @@
 keys:
   - &admin_gorschu age1aph83gkdg83l6cf83nsdthp95dcd5natpa7527sd3p8rtlcj3dgstl502c
   - &hosts_hephaestus age1tx6wn5dtsqguqslm4cevw2crf6fgg89r6t9glxlz6hkmh4y7rqrq7p373h
+  - &hosts_apollo age1wgak6md4v9ylqzygdf5tc0ukwd92s59c5kcyxd9z0uheyzuhdy0q9v0m6d
   - &users_hephaestus_gorschu age1mzqfpr6lkpjw5evkwl7fuc8wzphxe6cxg63s9kmhs99df37u2pnsawt787
+  - &users_apollo_gorschu age1r9s3zm39wfdgwx7n3zstjxnpnnj0sah8erpflc85w2dj4s8cjd8su4tl8m
 creation_rules:
+  # Top-level shared host files (wifi.yaml etc.) — all hosts can decrypt
   - path_regex: secrets/hosts/[^/]+\.(yaml|json|env|ini)$
     key_groups:
       - age:
           - *admin_gorschu
           - *hosts_hephaestus
+          - *hosts_apollo
   - path_regex: secrets/hosts/hephaestus/[^/]+\.(yaml|json|env|ini)$
     key_groups:
       - age:
           - *admin_gorschu
           - *hosts_hephaestus
+  - path_regex: secrets/hosts/apollo/[^/]+\.(yaml|json|env|ini)$
+    key_groups:
+      - age:
+          - *admin_gorschu
+          - *hosts_apollo
+  # SSH host keys: admin only
   - path_regex: secrets/hosts/[^/]+/ssh/ssh_host_.*_key$
     key_groups:
       - age:
           - *admin_gorschu
-  # age key files: host SSH key bootstraps the user age key onto the machine
-  - path_regex: secrets/users/[^/]+/age/.*
+  # User age keys: admin + the matching host bootstraps the key at boot
+  - path_regex: secrets/users/[^/]+/age/hephaestus\.yaml$
     key_groups:
       - age:
           - *admin_gorschu
           - *hosts_hephaestus
-  # user secrets: admin can edit, deployed user key can decrypt at runtime
+  - path_regex: secrets/users/[^/]+/age/apollo\.yaml$
+    key_groups:
+      - age:
+          - *admin_gorschu
+          - *hosts_apollo
+  # User secrets: admin + all deployed user keys can decrypt at runtime
   - path_regex: secrets/users/.*
     key_groups:
       - age:
           - *admin_gorschu
           - *users_hephaestus_gorschu
+          - *users_apollo_gorschu

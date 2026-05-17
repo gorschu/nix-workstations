@@ -87,6 +87,12 @@
             specialArgs = { inherit inputs; };
             modules = commonModules ++ [ ./configurations/nixos/hephaestus-vm/default.nix ];
           };
+
+          apollo = nixpkgs.lib.nixosSystem {
+            system = "x86_64-linux";
+            specialArgs = { inherit inputs; };
+            modules = commonModules ++ [ ./configurations/nixos/apollo/default.nix ];
+          };
         };
 
         # Standalone Home Manager profile (for non-NixOS systems)

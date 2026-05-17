@@ -2,7 +2,7 @@ terraform {
   required_providers {
     libvirt = {
       source  = "dmacvicar/libvirt"
-      version = "~> 0.8"
+      version = "~> 0.9"
     }
   }
 }
@@ -14,88 +14,153 @@ provider "libvirt" {
 variable "vm_name" {
   description = "Name of the VM"
   type        = string
-  default     = "nixos-test"
 }
 
 variable "memory_mb" {
-  description = "Memory in MB"
+  description = "Memory in MiB"
   type        = number
-  default     = 8192
 }
 
 variable "vcpus" {
   description = "Number of virtual CPUs"
   type        = number
-  default     = 8
 }
 
 variable "disk_size_gb" {
   description = "Disk size in GB"
   type        = number
-  default     = 100
 }
 
 variable "ovmf_firmware" {
-  description = "Path to OVMF firmware on the libvirt host (NixOS: /run/libvirt/nix-helpers/OVMF_CODE.fd)"
+  description = "Path to OVMF firmware on the libvirt host. Arch: /usr/share/edk2/x64/OVMF_CODE.4m.fd, NixOS: /run/libvirt/nix-helpers/OVMF_CODE.fd"
   type        = string
-  default     = "/run/libvirt/nix-helpers/OVMF_CODE.fd"
 }
 
-# Download nixos-images installer ISO (shared across VMs, uses default images pool)
+# Download nixos-images installer ISO (shared across VMs, uses default pool)
 resource "libvirt_volume" "nixos_installer_iso" {
-  name   = "nixos-installer-x86_64-linux.iso"
-  pool   = "images"
-  source = "https://github.com/nix-community/nixos-images/releases/download/nixos-unstable/nixos-installer-x86_64-linux.iso"
+  name = "nixos-installer-x86_64-linux.iso"
+  pool = "default"
+
+  create = {
+    content = {
+      url = "https://github.com/nix-community/nixos-images/releases/download/nixos-unstable/nixos-installer-x86_64-linux.iso"
+    }
+  }
 
   lifecycle {
     prevent_destroy = true
   }
 }
 
-# VM disk (uses default images pool)
+# VM disk
 resource "libvirt_volume" "vm_disk" {
-  name   = "${var.vm_name}.qcow2"
-  pool   = "images"
-  format = "qcow2"
-  size   = var.disk_size_gb * 1024 * 1024 * 1024
+  name     = "${var.vm_name}.qcow2"
+  pool     = "default"
+  capacity = var.disk_size_gb * 1024 * 1024 * 1024
+
+  target = {
+    format = {
+      type = "qcow2"
+    }
+  }
 }
 
 # Define the VM
 resource "libvirt_domain" "nixos_vm" {
-  name   = var.vm_name
-  memory = var.memory_mb
-  vcpu   = var.vcpus
+  name        = var.vm_name
+  memory      = var.memory_mb
+  memory_unit = "MiB"
+  vcpu        = var.vcpus
+  type        = "kvm"
 
-  firmware = var.ovmf_firmware
-
-  cpu {
+  cpu = {
     mode = "host-passthrough"
   }
 
-  disk {
-    volume_id = libvirt_volume.vm_disk.id
+  os = {
+    type         = "hvm"
+    type_arch    = "x86_64"
+    type_machine = "q35"
+    loader          = var.ovmf_firmware
+    loader_type     = "pflash"
+    loader_readonly = "yes"
   }
 
-  disk {
-    file = libvirt_volume.nixos_installer_iso.id
+  features = {
+    acpi = true
   }
 
-  network_interface {
-    network_name   = "default"
-    wait_for_lease = true
+  devices = {
+    disks = [
+      {
+        source = {
+          volume = {
+            pool   = libvirt_volume.vm_disk.pool
+            volume = libvirt_volume.vm_disk.name
+          }
+        }
+        target = {
+          dev = "vda"
+          bus = "virtio"
+        }
+        driver = {
+          type = "qcow2"
+        }
+      },
+      {
+        device = "cdrom"
+        source = {
+          volume = {
+            pool   = libvirt_volume.nixos_installer_iso.pool
+            volume = libvirt_volume.nixos_installer_iso.name
+          }
+        }
+        target = {
+          dev = "sdb"
+          bus = "sata"
+        }
+      }
+    ]
+
+    interfaces = [
+      {
+        type  = "network"
+        model = { type = "virtio" }
+        source = {
+          network = {
+            network = "default"
+          }
+        }
+      }
+    ]
+
+    consoles = [
+      {
+        type = "pty"
+        target = {
+          type = "serial"
+          port = 0
+        }
+      }
+    ]
+
+    graphics = [
+      {
+        vnc = {
+          auto_port = true
+          listen    = "0.0.0.0"
+        }
+      }
+    ]
   }
 
-  console {
-    type        = "pty"
-    target_port = "0"
-    target_type = "serial"
-  }
+  running = true
+}
 
-  graphics {
-    type        = "vnc"
-    listen_type = "address"
-    autoport    = true
-  }
+# Query VM IP after boot (run `just vm-info` once the VM has a DHCP lease)
+data "libvirt_domain_interface_addresses" "nixos_vm" {
+  domain = libvirt_domain.nixos_vm.name
+  source = "lease"
 }
 
 output "vm_name" {
@@ -103,6 +168,11 @@ output "vm_name" {
 }
 
 output "vm_ip" {
-  value       = try(libvirt_domain.nixos_vm.network_interface[0].addresses[0], "IP not yet assigned")
   description = "IP address of the VM (once DHCP assigns it)"
+  value = (
+    length(data.libvirt_domain_interface_addresses.nixos_vm.interfaces) > 0 &&
+    length(data.libvirt_domain_interface_addresses.nixos_vm.interfaces[0].addrs) > 0
+    ? data.libvirt_domain_interface_addresses.nixos_vm.interfaces[0].addrs[0].addr
+    : "IP not yet assigned"
+  )
 }

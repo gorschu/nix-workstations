@@ -95,12 +95,12 @@ install-vm HOST='hephaestus':
 # Create test VM with Terraform
 [group('vm')]
 vm-create NAME='nixos-test':
-  cd terraform && terraform init && terraform apply -var="vm_name={{NAME}}"
+  cd terraform && tofu init && tofu apply -var="vm_name={{NAME}}"
 
 # Create test VM with debug logging
 [group('vm')]
 vm-create-debug NAME='nixos-test':
-  cd terraform && TF_LOG=DEBUG terraform apply -var="vm_name={{NAME}}" 2>&1 | tee terraform-debug.log
+  cd terraform && TF_LOG=DEBUG tofu apply -var="vm_name={{NAME}}" 2>&1 | tee terraform-debug.log
 
 # Destroy test VM
 [group('vm')]

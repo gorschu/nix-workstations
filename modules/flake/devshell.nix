@@ -8,6 +8,7 @@ _: {
         packages = with pkgs; [
           age
           just
+          mkpasswd
           nixd
           nixos-rebuild
           omnix

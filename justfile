@@ -6,7 +6,7 @@
 default:
   @just --list
 
-# Decrypt SSH host keys for a host into extra-files/ staging (sources live in secrets/ssh/)
+# Decrypt SSH host keys for a host into extra-files/ staging (sources live in secrets/hosts/<host>/ssh/)
 [group('setup')]
 decrypt-keys HOST:
   #!/usr/bin/env bash
@@ -15,7 +15,7 @@ decrypt-keys HOST:
   BASE_HOST="${BASE_HOST%-vm}"
   dest_dir="extra-files/${BASE_HOST}/etc/ssh"
   mkdir -p "${dest_dir}"
-  for enc in secrets/ssh/${BASE_HOST}/ssh_host_*_key; do
+  for enc in secrets/hosts/${BASE_HOST}/ssh/ssh_host_*_key; do
     [ -f "$enc" ] || continue
     keyname="$(basename "${enc}")"
     dest="${dest_dir}/${keyname}"

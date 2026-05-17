@@ -83,14 +83,14 @@ in
     sops.secrets = lib.mkMerge (
       (map (category: {
         "ssh-config-${category}" = {
-          sopsFile = self + /secrets/ssh/${category}.yaml;
+          sopsFile = self + /secrets/users/gorschu/ssh/${category}.yaml;
           path = "${config.home.homeDirectory}/.ssh/config.d/${category}";
           mode = "0600";
         };
       }) sshCfg.secretConfigs)
       ++ (map (keyName: {
         "ssh-key-${keyName}" = {
-          sopsFile = self + /secrets/ssh/keys/${keyName};
+          sopsFile = self + /secrets/users/gorschu/ssh/keys/${keyName};
           format = "binary";
           path = "${config.home.homeDirectory}/.ssh/${keyName}";
           mode = "0600";

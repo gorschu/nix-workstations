@@ -13,6 +13,7 @@
       qemuGuest.enable = true;
       virtioDiskLinks.enable = true;
     };
+    networking.tailscale.enable = lib.mkForce false;
     storage.backup.enable = lib.mkForce false;
   };
 

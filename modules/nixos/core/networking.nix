@@ -100,15 +100,15 @@ in
 
       secrets = {
         "wifi-password-home" = {
-          sopsFile = self + /secrets/wifi.yaml;
+          sopsFile = self + /secrets/hosts/wifi.yaml;
           key = "password-home";
         };
         "wifi-password-altenhof" = {
-          sopsFile = self + /secrets/wifi.yaml;
+          sopsFile = self + /secrets/hosts/wifi.yaml;
           key = "password-altenhof";
         };
         "wifi-password-travel" = {
-          sopsFile = self + /secrets/wifi.yaml;
+          sopsFile = self + /secrets/hosts/wifi.yaml;
           key = "password-travel";
         };
       };

@@ -2,9 +2,13 @@
   description = "NixOS and Home Manager configuration";
 
   nixConfig = {
-    extra-substituters = [ "https://hyprland.cachix.org" ];
+    extra-substituters = [
+      "https://hyprland.cachix.org"
+      "https://cache.numtide.com"
+    ];
     extra-trusted-public-keys = [
       "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
+      "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
     ];
   };
 
@@ -35,6 +39,9 @@
     nixos-facter-modules.url = "github:numtide/nixos-facter-modules";
     sops-nix.url = "github:Mic92/sops-nix";
 
+    # AI coding agents — daily-updated packages for codex, claude-code, copilot-cli, etc.
+    llm-agents.url = "github:numtide/llm-agents.nix";
+
     # Development tooling
     git-hooks.url = "github:cachix/git-hooks.nix";
     git-hooks.inputs.nixpkgs.follows = "nixpkgs";
@@ -53,6 +60,7 @@
         ./modules/nixos
         home-manager.nixosModules.home-manager
         inputs.hyprland.nixosModules.default
+        { nixpkgs.overlays = [ inputs.llm-agents.overlays.default ]; }
         {
           home-manager = {
             extraSpecialArgs = { inherit inputs; };
@@ -98,7 +106,10 @@
         # Standalone Home Manager profile (for non-NixOS systems)
         homeConfigurations = {
           "gorschu@hephaestus" = home-manager.lib.homeManagerConfiguration {
-            pkgs = nixpkgs.legacyPackages.x86_64-linux;
+            pkgs = import nixpkgs {
+              system = "x86_64-linux";
+              overlays = [ inputs.llm-agents.overlays.default ];
+            };
             extraSpecialArgs = { inherit inputs; };
             modules = [
               inputs.sops-nix.homeManagerModules.sops

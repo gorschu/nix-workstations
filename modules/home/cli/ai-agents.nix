@@ -25,9 +25,10 @@ in
       '';
     };
 
-    # GitHub Copilot CLI (no home-manager module yet)
+    # GitHub Copilot CLI
     home.packages = with pkgs; [
-      github-copilot-cli
+      copilot-cli
+      gemini-cli
     ];
   };
 }

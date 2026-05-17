@@ -1,7 +1,8 @@
 { lib, ... }:
 {
   imports = [
-    ../hephaestus/profiles/base.nix
+    ../_shared/workstation-profile.nix
+    ../hephaestus/configuration.nix
   ];
 
   # Hardware configuration via nixos-facter

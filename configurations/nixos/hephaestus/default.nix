@@ -1,11 +1,9 @@
-# See /modules/nixos/* for actual settings
-# This file is just *top-level* configuration.
 { ... }:
 {
   imports = [
-    ./profiles/base.nix
+    ../_shared/workstation-profile.nix
+    ./configuration.nix
   ];
 
-  # Hardware configuration via nixos-facter
   facter.reportPath = ./facter.json;
 }

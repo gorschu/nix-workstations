@@ -105,12 +105,25 @@ vm-create-debug NAME='nixos-test':
 # Destroy test VM
 [group('vm')]
 vm-destroy NAME='nixos-test':
-  cd terraform && terraform destroy -target=libvirt_domain.nixos_vm -target=libvirt_volume.vm_disk -var="vm_name={{NAME}}"
+  cd terraform && tofu destroy -target=libvirt_domain.nixos_vm -target=libvirt_volume.vm_disk -var="vm_name={{NAME}}"
+
+[private]
+_vm-refresh:
+  @cd terraform && tofu refresh -var-file=terraform.tfvars > /dev/null
 
 # Show VM info (including IP)
 [group('vm')]
-vm-info NAME='nixos-test':
-  cd terraform && terraform output
+vm-info NAME='nixos-test': _vm-refresh
+  cd terraform && tofu output
+
+# SSH into VM as root
+[group('vm')]
+vm-ssh NAME='nixos-test':
+  #!/usr/bin/env bash
+  set -euo pipefail
+  just _vm-refresh
+  IP=$(cd terraform && tofu output -raw vm_ip)
+  ssh -o StrictHostKeyChecking=no -o UserKnownHostsFile=/dev/null -o LogLevel=ERROR -o PreferredAuthentications=password -o PubkeyAuthentication=no root@${IP}
 
 # Connect to VM console
 [group('vm')]

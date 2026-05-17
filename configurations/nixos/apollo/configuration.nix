@@ -2,7 +2,7 @@
 {
   # Set this to the actual disk device path after booting the installer:
   # ls /dev/disk/by-id/ | grep -v part
-  disko.devices.disk.main.device = "/dev/disk/by-id/FIXME";
+  disko.devices.disk.main.device = "/dev/disk/by-id/nvme-SAMSUNG_MZVLB1T0HBLR-000L7_S4EMNX0R310953";
 
   nixpkgs.hostPlatform = "x86_64-linux";
   networking.hostName = "apollo";

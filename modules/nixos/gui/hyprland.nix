@@ -25,15 +25,5 @@ in
       enable = true;
       withUWSM = true;
     };
-
-    # Binary cache for Hyprland upstream flake builds.
-    # Must NOT set hyprland.inputs.nixpkgs.follows in flake.nix — doing so
-    # would rebuild against a different nixpkgs and break cache alignment.
-    nix.settings = {
-      substituters = lib.mkAfter [ "https://hyprland.cachix.org" ];
-      trusted-public-keys = lib.mkAfter [
-        "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
-      ];
-    };
   };
 }

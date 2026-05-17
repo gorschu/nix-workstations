@@ -14,6 +14,8 @@ in
       # Requires home-manager >= 5dc1c2e.
       package = null;
       portalPackage = null;
+      # UWSM manages graphical-session.target and env import — disable HM's redundant systemd integration.
+      systemd.enable = false;
     };
 
     # With UWSM, Hyprland is launched as a systemd unit and does not source

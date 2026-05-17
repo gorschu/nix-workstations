@@ -16,7 +16,7 @@ creation_rules:
     key_groups:
       - age:
           - *admin_gorschu
-  - path_regex: extra-files/.*/ssh/ssh_host_.*_key$
+  - path_regex: secrets/ssh/.*/ssh_host_.*_key$
     key_groups:
       - age:
           - *admin_gorschu

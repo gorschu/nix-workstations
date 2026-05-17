@@ -6,19 +6,22 @@
 default:
   @just --list
 
-# Decrypt SSH host keys for specific host (they are SOPS-encrypted in git)
+# Decrypt SSH host keys for a host into extra-files/ staging (sources live in secrets/ssh/)
 [group('setup')]
 decrypt-keys HOST:
   #!/usr/bin/env bash
   set -euo pipefail
-  # Decrypt keys for specific host only
   BASE_HOST="{{HOST}}"
   BASE_HOST="${BASE_HOST%-vm}"
-  for key in extra-files/${BASE_HOST}/etc/ssh/ssh_host_*_key; do
-    [ -f "$key" ] || continue
-    echo "Decrypting ${key}"
-    sops -d -i "${key}"
-    chmod 600 "${key}"
+  dest_dir="extra-files/${BASE_HOST}/etc/ssh"
+  mkdir -p "${dest_dir}"
+  for enc in secrets/ssh/${BASE_HOST}/ssh_host_*_key; do
+    [ -f "$enc" ] || continue
+    keyname="$(basename "${enc}")"
+    dest="${dest_dir}/${keyname}"
+    echo "Decrypting ${enc} -> ${dest}"
+    sops -d "${enc}" > "${dest}"
+    chmod 600 "${dest}"
   done
   echo "SSH host keys decrypted successfully"
 

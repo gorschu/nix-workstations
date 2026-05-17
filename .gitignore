@@ -11,3 +11,6 @@ terraform/.terraform.lock.hcl
 terraform/terraform.tfstate
 terraform/terraform.tfstate.*backup
 terraform/*.log
+
+# Decrypted SSH host keys (encrypted sources live in secrets/ssh/)
+extra-files/**/ssh_host_*_key

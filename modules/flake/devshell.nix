@@ -12,6 +12,7 @@ _: {
           nixos-rebuild
           omnix
           sops
+          ssh-to-age
           opentofu
         ];
       };

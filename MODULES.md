@@ -32,7 +32,9 @@ modules/
 │       ├── default.nix
 │       ├── options.nix
 │       ├── fonts.nix
+│       ├── hyprland.nix
 │       ├── terminals.nix
+│       ├── wayland.nix
 │       ├── xdg.nix
 │       └── browsers/
 │           ├── default.nix
@@ -40,9 +42,9 @@ modules/
 └── nixos/                 # NixOS modules
     ├── default.nix
     ├── core/
+    ├── gui/
     ├── networking/
     ├── storage/
-    ├── gui/
     └── virt/
 ```
 
@@ -93,6 +95,7 @@ NixOS modules in this repository are not uniformly modeled as a strict two-level
 Common patterns include:
 
 - `nixconfig.gui.enable`
+- `nixconfig.hyprland.enable`
 - `nixconfig.storage.zfs.enable`
 - `nixconfig.storage.backup.enable`
 - `nixconfig.networking.tailscale.enable`
@@ -287,7 +290,7 @@ nixconfig.mycategory.enable = true;
 ### Home Manager GUI
 
 - `browsers` - browser applications such as Firefox
-- `desktop` - desktop integration such as XDG-related behavior
+- `desktop` - Hyprland compositor, Wayland session, and desktop integration (XDG, fonts, terminals)
 
 ### NixOS
 

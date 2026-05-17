@@ -76,7 +76,7 @@ Create the secrets file for the host:
 mkdir -p secrets/hosts/hephaestus
 
 # Copy the example
-cp secrets/restic.yaml.example secrets/hosts/hephaestus/restic.yaml
+cp secrets/hosts/restic.yaml.example secrets/hosts/hephaestus/restic.yaml
 
 # Edit and add your credentials (only add sections for targets you're using)
 nano secrets/hosts/hephaestus/restic.yaml
@@ -85,17 +85,16 @@ nano secrets/hosts/hephaestus/restic.yaml
 sops -e -i secrets/hosts/hephaestus/restic.yaml
 ```
 
-The secrets file should contain credentials for each target you plan to use. See `secrets/restic.yaml.example` for the complete format.
+The secrets file should contain credentials for each target you plan to use. See `secrets/hosts/restic.yaml.example` for the complete format.
 
 ### 4. Update .sops.yaml
 
-Add a rule for the restic secrets (if not already present):
+If your host already has a rule in `.sops.yaml` covering `secrets/hosts/<hostname>/*.yaml` (see `docs/new-host-setup.md`), no additional rule is needed — the restic secrets file will be encrypted for both the admin key and the host key automatically.
+
+If you are adding restic secrets to an already-registered host and are unsure whether the rule exists, check `.sops.yaml` for a line like:
 
 ```yaml
-- path_regex: secrets/hosts/.*/restic.yaml$
-  key_groups:
-    - age:
-        - *admin_gorschu
+- path_regex: secrets/hosts/hephaestus/[^/]+\.(yaml|json|env|ini)$
 ```
 
 ### 5. Enable Backups in Host Config

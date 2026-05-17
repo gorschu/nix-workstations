@@ -11,6 +11,7 @@ _: {
           nixos-rebuild
           omnix
           sops
+          opentofu
         ];
       };
     };

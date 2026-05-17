@@ -73,10 +73,10 @@
             size = "8G";
             options = {
               volblocksize = "4096";
-              sync = "always";         # safe for swap on ZFS
+              sync = "always"; # safe for swap on ZFS
               primarycache = "metadata"; # don't cache swap pages in ARC
               secondarycache = "none";
-              compression = "zle";     # only compress zero pages; zswap handles the rest
+              compression = "zle"; # only compress zero pages; zswap handles the rest
             };
             content.type = "swap";
           };

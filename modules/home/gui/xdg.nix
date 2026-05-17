@@ -21,9 +21,11 @@ in
         };
       };
 
-      # XDG desktop portal configuration
+      # XDG desktop portal configuration.
+      # mkDefault so compositor NixOS modules (e.g. programs.hyprland) can defer
+      # portal management to the system level by setting enable = false here.
       portal = {
-        enable = true;
+        enable = lib.mkDefault true;
         xdgOpenUsePortal = true;
 
         # Provide GTK portal as fallback

@@ -9,8 +9,7 @@
     {
       # Configure git-hooks (pre-commit)
       pre-commit.settings.hooks = {
-        # Nix formatting with official nixfmt
-        nixfmt-rfc-style.enable = true;
+        nixfmt.enable = true;
 
         # Remove unused Nix code
         deadnix.enable = true;

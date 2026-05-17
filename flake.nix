@@ -17,6 +17,11 @@
       inputs.flake-parts.follows = "flake-parts";
     };
 
+    # Hyprland — upstream flake for latest packages and NixOS/HM modules.
+    # WARNING: do NOT add hyprland.inputs.nixpkgs.follows — breaks the Cachix
+    # binary cache which is built against Hyprland's own nixpkgs pin.
+    hyprland.url = "github:hyprwm/Hyprland";
+
     # System configuration inputs
     disko.url = "github:nix-community/disko";
     disko.inputs.nixpkgs.follows = "nixpkgs";
@@ -30,7 +35,6 @@
 
   outputs =
     inputs@{
-      self,
       nixpkgs,
       home-manager,
       flake-parts,
@@ -41,6 +45,7 @@
       commonModules = [
         ./modules/nixos
         home-manager.nixosModules.home-manager
+        inputs.hyprland.nixosModules.default
         {
           home-manager = {
             extraSpecialArgs = { inherit inputs; };

@@ -14,5 +14,6 @@
 
   # Enable GUI and ZFS for this machine
   nixconfig.gui.enable = true;
+  nixconfig.hyprland.enable = true;
   nixconfig.storage.zfs.enable = true;
 }

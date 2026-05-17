@@ -76,6 +76,10 @@ in
     };
 
     # All users can add Nix caches. @wheel covers sudoers.
-    nix.settings.trusted-users = [ "root" "@wheel" ] ++ config.myusers;
+    nix.settings.trusted-users = [
+      "root"
+      "@wheel"
+    ]
+    ++ config.myusers;
   };
 }

@@ -12,6 +12,7 @@
   ];
 
   nixconfig = {
+    kde.enable = true;
     networking = {
       enable = true;
       tailscale = {

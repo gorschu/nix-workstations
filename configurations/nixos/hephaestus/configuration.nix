@@ -11,6 +11,7 @@
   ];
 
   nixconfig = {
+    gnome.enable = true;
     networking = {
       enable = true;
       tailscale = {

@@ -6,27 +6,26 @@
 }:
 let
   cfg = config.homeconfig.cli;
+  ai = pkgs.llm-agents;
 in
 {
   config = lib.mkIf (cfg.enable && cfg.development.enable) {
     programs.claude-code = {
       enable = true;
+      package = ai.claude-code;
     };
 
     programs.codex = {
       enable = true;
-      settings = {
-        # Codex configuration in ~/.codex/config.yaml
-        # Add your preferred settings here
-      };
+      package = ai.codex;
+      settings = { };
       context = ''
         # Custom instructions for Codex agents in ~/.codex/AGENTS.md
         # Add your coding guidelines and preferences here
       '';
     };
 
-    # GitHub Copilot CLI
-    home.packages = with pkgs; [
+    home.packages = with ai; [
       copilot-cli
       gemini-cli
     ];

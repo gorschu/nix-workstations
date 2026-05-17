@@ -42,6 +42,11 @@
     # AI coding agents — daily-updated packages for codex, claude-code, copilot-cli, etc.
     llm-agents.url = "github:numtide/llm-agents.nix";
 
+    # KDE Plasma declarative Home Manager configuration
+    plasma-manager.url = "github:nix-community/plasma-manager";
+    plasma-manager.inputs.nixpkgs.follows = "nixpkgs";
+    plasma-manager.inputs.home-manager.follows = "home-manager";
+
     # Development tooling
     git-hooks.url = "github:cachix/git-hooks.nix";
     git-hooks.inputs.nixpkgs.follows = "nixpkgs";
@@ -64,7 +69,10 @@
         {
           home-manager = {
             extraSpecialArgs = { inherit inputs; };
-            sharedModules = [ inputs.sops-nix.homeManagerModules.sops ];
+            sharedModules = [
+              inputs.sops-nix.homeManagerModules.sops
+              inputs.plasma-manager.homeModules.plasma-manager
+            ];
           };
         }
       ];
@@ -113,6 +121,7 @@
             extraSpecialArgs = { inherit inputs; };
             modules = [
               inputs.sops-nix.homeManagerModules.sops
+              inputs.plasma-manager.homeModules.plasma-manager
               ./modules/home
               ./configurations/home/gorschu.nix
             ];

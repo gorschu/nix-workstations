@@ -43,5 +43,13 @@
         description = "Enable desktop integration (XDG portals, MIME associations)";
       };
     };
+
+    plasma = {
+      enable = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Enable KDE Plasma declarative configuration via plasma-manager";
+      };
+    };
   };
 }

@@ -12,16 +12,17 @@ in
       type = lib.types.bool;
       default = false;
       description = ''
-        Enable GUI environment. Implicitly enables nixconfig.gnome, nixconfig.gui.fonts,
-        and nixconfig._1password via mkDefault. Override any of them with = false.
+        Enable GUI environment. Implicitly enables nixconfig.gui.fonts and
+        nixconfig._1password via mkDefault. Desktop environment (gnome/kde)
+        must be explicitly enabled per host.
       '';
     };
   };
 
   config = lib.mkIf cfg.enable {
-    # GNOME, fonts, and 1Password enabled by default when GUI is enabled
+    # Fonts and 1Password enabled by default when GUI is enabled.
+    # Desktop environment (nixconfig.gnome / nixconfig.kde) must be set explicitly per host.
     nixconfig = {
-      gnome.enable = lib.mkDefault true;
       gui.fonts.enable = lib.mkDefault true;
       _1password.enable = lib.mkDefault true;
     };

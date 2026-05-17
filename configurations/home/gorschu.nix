@@ -6,6 +6,7 @@
 
   # Enable GUI modules for this user
   homeconfig.gui.enable = true;
+  homeconfig.gui.plasma.enable = true;
 
   # SSH configuration
   homeconfig.cli.ssh = {

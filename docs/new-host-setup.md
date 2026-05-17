@@ -272,23 +272,44 @@ Fix any evaluation errors before proceeding.
 
 ## 7. Install
 
-Decrypt the SSH host keys into the staging directory first:
+`just install` decrypts the SSH host keys automatically before running nixos-anywhere, so you only need your admin age key available.
 
-```bash
-just decrypt-keys newhostname
-```
-
-Then install to the target machine (booted into a NixOS installer):
+### Option A: From another machine (normal case)
 
 ```bash
 just install <target-ip> HOST=newhostname
 ```
 
 The installer will:
+- Decrypt SSH host keys from `secrets/hosts/newhostname/ssh/` → `extra-files/newhostname/`
 - Partition and format the disk (via disko)
 - Generate `facter.json` hardware config
-- Copy the SSH host keys from `extra-files/newhostname/`
+- Copy the SSH host keys into place
 - Install and activate NixOS
+
+### Option B: Installing on the machine itself (no second machine)
+
+If the target machine is the only machine you have, boot the NixOS installer USB on it and run the install locally.
+
+> **Why you need the age key:** The SSH host keys are pre-encrypted in sops. If NixOS generates new SSH host keys instead, the host age key in `.sops.yaml` won't match and all secrets will fail to decrypt on first boot. The admin age private key must be available to decrypt them before install.
+
+```bash
+# 1. Clone the repo (or copy it from USB)
+git clone <repo-url>
+cd nix-workstations
+
+# 2. Enter dev shell
+nix develop
+
+# 3. Make your admin age private key available
+#    Either type/paste it, or load from a USB drive
+export SOPS_AGE_KEY="AGE-SECRET-KEY-1..."
+
+# 4. Install targeting localhost (NixOS ISO has root SSH enabled by default)
+just install 127.0.0.1 HOST=newhostname
+```
+
+nixos-anywhere SSHes to `root@127.0.0.1` — this works fine from within the installer itself.
 
 ---
 

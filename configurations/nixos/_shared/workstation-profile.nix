@@ -9,6 +9,5 @@
   ];
 
   nixconfig.gui.enable = true;
-  nixconfig.hyprland.enable = true;
   nixconfig.storage.zfs.enable = true;
 }

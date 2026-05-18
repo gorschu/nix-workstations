@@ -11,7 +11,6 @@
   ];
 
   nixconfig = {
-    gnome.enable = false;
     kde.enable = true;
     networking = {
       enable = true;

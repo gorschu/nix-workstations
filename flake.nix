@@ -47,6 +47,9 @@
     plasma-manager.inputs.nixpkgs.follows = "nixpkgs";
     plasma-manager.inputs.home-manager.follows = "home-manager";
 
+    # Declarative Flatpak package management
+    nix-flatpak.url = "github:gmodena/nix-flatpak/?ref=latest";
+
     # Development tooling
     git-hooks.url = "github:cachix/git-hooks.nix";
     git-hooks.inputs.nixpkgs.follows = "nixpkgs";
@@ -65,6 +68,7 @@
         ./modules/nixos
         home-manager.nixosModules.home-manager
         inputs.hyprland.nixosModules.default
+        inputs.nix-flatpak.nixosModules.nix-flatpak
         { nixpkgs.overlays = [ inputs.llm-agents.overlays.default ]; }
         {
           home-manager = {

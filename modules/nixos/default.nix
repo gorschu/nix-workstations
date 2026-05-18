@@ -1,5 +1,5 @@
 # Core NixOS configuration
-# Imports all module categories (core/networking/storage/gui/virt/gaming)
+# Imports all module categories (core/networking/storage/gui/virt/gaming/flatpak)
 # Control what's enabled via nixconfig.* options
 {
   imports = [
@@ -9,5 +9,6 @@
     ./gui
     ./virt
     ./gaming
+    ./flatpak
   ];
 }

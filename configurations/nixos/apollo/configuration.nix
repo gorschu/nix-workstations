@@ -13,6 +13,7 @@
 
   nixconfig = {
     kde.enable = true;
+    flatpak.enable = true;
     gaming = {
       enable = true;
       lutris.enable = true;

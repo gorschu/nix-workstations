@@ -37,6 +37,10 @@ in
 
     assertions = [
       {
+        assertion = config.nixconfig.flatpak.enable;
+        message = "nixconfig.gaming.enable requires nixconfig.flatpak.enable = true";
+      }
+      {
         assertion = !cfg.steam.enable || config.nixconfig.flatpak.enable;
         message = "nixconfig.gaming.steam.enable requires nixconfig.flatpak.enable = true";
       }
@@ -47,7 +51,10 @@ in
     ];
 
     services.flatpak.packages =
-      (lib.optional cfg.steam.enable "com.valvesoftware.Steam")
+      # ProtonUp-Qt: always present when gaming is on, manages Proton/Wine runner versions
+      [ "net.davidotek.pupgui2" ]
+      ++ (lib.optional cfg.steam.enable "com.valvesoftware.Steam")
+      ++ (lib.optional cfg.steam.enable "com.valvesoftware.Steam.Utility.steamtinkerlaunch")
       ++ (lib.optional cfg.lutris.enable "net.lutris.Lutris");
   };
 }

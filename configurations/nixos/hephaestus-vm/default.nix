@@ -10,6 +10,11 @@
 
   # VM-specific configuration
   nixconfig = {
+    flatpak.enable = true;
+    gaming = {
+      enable = true;
+      lutris.enable = true;
+    };
     virt = {
       qemuGuest.enable = true;
       virtioDiskLinks.enable = true;

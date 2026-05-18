@@ -11,7 +11,8 @@
   ];
 
   nixconfig = {
-    gnome.enable = true;
+    gnome.enable = false;
+    kde.enable = true;
     networking = {
       enable = true;
       tailscale = {

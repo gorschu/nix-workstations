@@ -13,6 +13,10 @@
 
   nixconfig = {
     kde.enable = true;
+    gaming = {
+      enable = true;
+      lutris.enable = true;
+    };
     networking = {
       enable = true;
       tailscale = {

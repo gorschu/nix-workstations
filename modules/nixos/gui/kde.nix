@@ -25,9 +25,7 @@ in
     environment.plasma6.excludePackages = with pkgs.kdePackages; [ kwin-x11 ];
 
     environment.systemPackages = with pkgs.kdePackages; [
-      filelight
       kdeconnect-kde
-      kgpg
       kwalletmanager
     ];
   };

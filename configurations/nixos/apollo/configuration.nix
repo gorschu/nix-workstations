@@ -21,7 +21,7 @@
     networking = {
       enable = true;
       tailscale = {
-        enable = true;
+        enable = false;
         autoconnect = true;
       };
     };

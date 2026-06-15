@@ -2,182 +2,75 @@
 
 This file provides guidance to Claude Code (claude.ai/code) when working in this repository.
 
-## Architecture Overview
+## Architecture
 
-This repository is a `flake-parts`-based NixOS and Home Manager configuration.
-It manages NixOS hosts, Home Manager profiles, deployment helpers, secrets, and installation workflows from a single flake.
+A `flake-parts`-based NixOS and Home Manager configuration. `flake.nix` is the composition root: it wires shared NixOS modules, registers every NixOS host under `nixosConfigurations`, registers every standalone Home Manager profile under `homeConfigurations`, and exports `nixosModules.default` / `homeModules.default`.
 
-### What Actually Drives The Repository
+Operational workflows (build, check, deploy, VM lifecycle, secret handling) are exposed through `justfile` recipes. Treat `just` as the canonical entrypoint; prefer it over raw `nix`/`nixos-rebuild` invocations when a recipe exists.
 
-- `flake.nix` is the composition root.
-- `flake-parts.lib.mkFlake` provides the flake structure.
-- NixOS hosts are registered explicitly under `flake.nixosConfigurations`.
-- Standalone Home Manager profiles are registered explicitly under `flake.homeConfigurations`.
-- Shared NixOS wiring lives in `commonModules` in `flake.nix`.
-- A Colmena hive is exported, but it is optional deployment plumbing rather than the core architecture.
-- Operational workflows are primarily exposed through `justfile` recipes.
+## Layout
 
-### Module Layout
+- `flake.nix` — composition root. Hosts and standalone HM profiles are registered here explicitly. Adding a new host or HM profile requires editing this file.
+- `modules/flake/` — flake-level modules (formatter, dev shell, git hooks, editor integrations).
+- `modules/nixos/` — reusable NixOS modules grouped by domain.
+- `modules/home/` — reusable Home Manager modules and user metadata.
+- `configurations/nixos/<hostname>/` — per-host entrypoint and machine-specific settings.
+- `configurations/nixos/_shared/` — cross-host workstation wiring (profile, disk layout) imported by host entrypoints.
+- `configurations/home/` — standalone Home Manager profile entrypoints.
 
-- `modules/flake/` contains flake-level modules such as formatter, dev shell, git hooks, and Neovim integration.
-- `modules/nixos/` contains reusable NixOS modules grouped by domain.
-- `modules/home/` contains reusable Home Manager modules and user metadata.
+Within `modules/`, each directory's `default.nix` auto-imports its siblings and nested subgroups. **Dropping a new file into a module group is enough to wire it up.** Host and profile registration is the only manual wiring step.
 
-### Auto-Import Boundaries
+## Conventions
 
-Auto-import exists for module groups, not for host registration.
+### Home Manager: two-level enable pattern
 
-- `modules/home/default.nix` imports the Home Manager module groups.
-- `modules/nixos/default.nix` imports the NixOS module groups.
-- Directory-level `default.nix` files inside module groups auto-import sibling files and nested module groups.
-- Adding a file to a module directory is usually enough for that module group to see it.
-- Adding a new host or standalone Home Manager profile still requires explicit registration in `flake.nix`.
-
-### Configuration Composition
-
-- Host-specific NixOS entrypoints live under `configurations/nixos/<hostname>/`.
-- User-specific Home Manager entrypoints live under `configurations/home/`.
-- `configurations/nixos/<hostname>/default.nix` is the top-level host composition entrypoint.
-- `configurations/nixos/<hostname>/configuration.nix` contains machine-specific settings such as hostname, hardware, and state version.
-- `configurations/home/gorschu.nix` imports the shared Home Manager module tree through `inputs.self.homeModules.default` and sets user-specific options.
-
-## Common Commands
-
-### Primary Workflow Commands
-
-```bash
-just           # List available commands
-just update    # Update flake inputs
-just lint      # Format Nix files with nix fmt
-just check     # Run nix flake check
-just dev       # Enter the dev shell
-```
-
-### Deployment And Provisioning
-
-```bash
-just install <target> HOST=hephaestus         # Install NixOS remotely with nixos-anywhere
-just deploy hephaestus <target>               # Deploy to an existing remote host with nixos-rebuild
-just deploy-local                             # Deploy to the current NixOS host using its hostname as the flake target
-just regenerate-facter                        # Regenerate facter.json for the current host
-just decrypt-keys hephaestus                  # Decrypt host SSH keys in extra-files/
-```
-
-`just deploy-local` is the intended local activation path for a managed machine.
-It resolves the current hostname and runs `nixos-rebuild switch --flake .#<hostname>`.
-
-### VM Helpers
-
-```bash
-just vm-create NAME=nixos-test
-just vm-destroy NAME=nixos-test
-just vm-info NAME=nixos-test
-just vm-console NAME=nixos-test
-```
-
-### Direct Nix Commands
-
-```bash
-nix fmt
-nix flake check
-nix develop
-nix build .#nixosConfigurations.hephaestus.config.system.build.toplevel
-nix build .#homeConfigurations."gorschu@hephaestus".activationPackage
-```
-
-## Configuration Patterns
-
-### Two-Level Enable Pattern
-
-Home Manager modules use a two-level enable pattern:
-
-1. Category level: `homeconfig.cli.enable` or `homeconfig.gui.enable`
-2. Subcategory level: `homeconfig.cli.development.enable`, `homeconfig.cli.editor.enable`, `homeconfig.cli.shell.enable`, `homeconfig.cli.system.enable`, `homeconfig.gui.browsers.enable`, or `homeconfig.gui.desktop.enable`
-
-Individual Home Manager modules are expected to check both levels with `lib.mkIf (cfg.enable && cfg.subcategory.enable)`.
-
-NixOS modules are less uniform. Some use category-level enables such as `nixconfig.gui.enable`, while others define their own module-level enables such as `nixconfig.storage.zfs.enable`, `nixconfig.networking.tailscale.enable`, `nixconfig.ssh.enable`, `nixconfig.gnome.enable`, or `nixconfig._1password.enable`.
-
-See `MODULES.md` for the detailed module conventions.
-
-## Adding New Modules
-
-Always read `MODULES.md` and refer to `modules/home/TEMPLATE.nix` before adding a new Home Manager module.
-
-### Home Manager CLI Module
-
-```bash
-# 1. Create the module file in the appropriate module group
-vim modules/home/cli/mycategory/mymodule.nix
-
-# 2. If the module needs a new subcategory toggle, update:
-vim modules/home/cli/options.nix
-```
-
-Follow these rules:
-
-- Use `cfg = config.homeconfig.cli`
-- Guard config with `lib.mkIf (cfg.enable && cfg.mycategory.enable)`
-- Use `config.me.*` for username, fullname, email, and SSH keys
-
-### Home Manager GUI Module
-
-```bash
-# 1. Create the module file in the GUI tree
-vim modules/home/gui/mycategory/mymodule.nix
-
-# 2. If the module needs a new subcategory toggle, update:
-vim modules/home/gui/options.nix
-```
-
-Follow these rules:
-
-- Use `cfg = config.homeconfig.gui`
-- Guard config with `lib.mkIf (cfg.enable && cfg.mycategory.enable)`
-
-### NixOS Module
-
-```bash
-# 1. Create the module file in the appropriate NixOS group
-vim modules/nixos/mycategory/mymodule.nix
-```
-
-Follow these rules:
-
-- Define options close to the owning module unless a shared options file already exists
-- Guard configuration with the relevant enable option
-- Let the nearest directory `default.nix` import tree pick the file up automatically
-
-### Enabling Modules In Configurations
+Home Manager modules sit under a category (`homeconfig.cli`, `homeconfig.gui`) with subcategories beneath each. A module must guard its config with **both** levels:
 
 ```nix
-# configurations/home/gorschu.nix
-homeconfig.gui.enable = true;
-homeconfig.cli.mycategory.enable = true;
-
-# configurations/nixos/<hostname>/default.nix
-nixconfig.mycategory.enable = true;
+config = lib.mkIf (cfg.enable && cfg.<subcategory>.enable) { … };
 ```
 
-## Critical Rules
+Category and subcategory toggles live in the corresponding `options.nix` for the category. When adding a module that warrants a new subcategory, add the toggle there. Defaults: CLI category on, GUI category off, subcategories on when their category is on.
 
-1. Never place `imports` inside a `config` block.
-2. For Home Manager modules, check both category and subcategory enables.
-3. Use `config.me.*` for shared user metadata.
-4. Let module-group `default.nix` files handle imports instead of manually wiring sibling modules.
-5. Register hosts and standalone Home Manager profiles explicitly in `flake.nix`.
+### NixOS: per-module enables
 
-## Important Files
+NixOS modules are not strictly two-level. Each module defines its own `nixconfig.<thing>.enable` (and any related sub-options) close to the module that owns them. When a module depends on another being enabled, express it as an `assertions` entry with a clear message rather than silently coupling.
 
-- `flake.nix` - source of truth for flake composition, host registration, shared modules, and outputs
-- `justfile` - main operational workflow entrypoint
-- `MODULES.md` - detailed module architecture and contribution guide
-- `modules/home/TEMPLATE.nix` - template for Home Manager modules
-- `modules/flake/toplevel.nix` - flake-level formatter setup
-- `modules/flake/devshell.nix` - development shell tools
-- `modules/home/me.nix` - user metadata consumed across Home Manager modules
-- `modules/home/cli/options.nix` - CLI category and subcategory toggles
-- `modules/home/gui/options.nix` - GUI category and subcategory toggles
-- `configurations/home/gorschu.nix` - user profile entrypoint
-- `configurations/nixos/hephaestus/default.nix` - host entrypoint
-- `configurations/nixos/hephaestus/configuration.nix` - machine-specific NixOS settings
+When extending an existing group, follow the shape already used by the nearest module rather than imposing a new abstraction.
+
+### User metadata
+
+Read user identity (`username`, `fullname`, `email`, `sshKeys`, etc.) from `config.me.*`. Never hardcode these in modules.
+
+### Composition over inheritance
+
+Prefer small modules organized by function over per-host modules. Per-host files should compose shared modules and toggle options, not duplicate logic.
+
+## Critical rules
+
+1. **Never put `imports` inside a `config` block.** `imports` belongs at the top level of the module.
+2. **Home Manager modules check both enable layers** (category and subcategory).
+3. **User metadata lives under `config.me.*`** — do not hardcode.
+4. **Let directory `default.nix` files handle imports.** Do not manually list sibling modules in a parent file.
+5. **Register hosts and standalone HM profiles explicitly in `flake.nix`.** Auto-import does not cover registration.
+6. **Match existing option shapes.** Read nearby modules before introducing a new convention.
+
+## Workflow
+
+- `just` — list recipes.
+- `just lint` / `just check` — formatting and `nix flake check`.
+- `just deploy-local` — switch the current NixOS host to its matching `nixosConfigurations` entry.
+- `just deploy <host> <target>` — remote `nixos-rebuild switch`.
+- `just install <target> HOST=<host>` — first-time install via `nixos-anywhere`.
+- VM lifecycle (`vm-create`, `vm-destroy`, `vm-info`, `vm-console`, …) drives the Terraform/libvirt rig under `terraform/`.
+- Secret handling uses `sops-nix`; host SSH keys are staged via `just decrypt-keys <host>`.
+
+When testing a slice of changes, prefer the narrowest applicable build target (`nix build .#nixosConfigurations.<host>.config.system.build.toplevel` or `nix build .#homeConfigurations."<user>@<host>".activationPackage`) over a full `nix flake check`.
+
+## Adding things
+
+- **New module:** drop the file into the appropriate `modules/{home,nixos}/<group>/` subtree. Use a nearby module as the template. Add a toggle in the category's `options.nix` only when introducing a new HM subcategory.
+- **New host:** create `configurations/nixos/<hostname>/{default,configuration}.nix`, then register it in `flake.nix` alongside the existing hosts. Reuse `_shared/` wiring where applicable.
+- **New standalone HM profile:** create the entrypoint in `configurations/home/` and register it under `homeConfigurations` in `flake.nix`.
+
+See `MODULES.md` for the deeper rationale behind these conventions.

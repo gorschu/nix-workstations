@@ -126,6 +126,40 @@
             mountpoint = "/var/cache";
             options.quota = "20G";
           };
+
+          # Container storage: dedicated subtree so podman/distrobox doesn't
+          # share recordsize/atime with /home, and so it can be excluded from
+          # backups in one rule. Tuning lives on the parent; children inherit.
+          "encrypted/safe/containers" = {
+            type = "zfs_fs";
+            options = {
+              canmount = "off";
+              mountpoint = "none";
+              acltype = "posixacl";
+              xattr = "sa";
+              compression = "zstd";
+              atime = "off";
+              recordsize = "128K";
+            };
+          };
+          # Rootful graphroot mounted at podman's default path
+          "encrypted/safe/containers/storage" = {
+            type = "zfs_fs";
+            mountpoint = "/var/lib/containers/storage";
+          };
+          # Per-user rootless graphroots, bind-mounted into ~/.local/share/containers
+          # by modules/nixos/virt/podman-storage.nix
+          "encrypted/safe/containers/users" = {
+            type = "zfs_fs";
+            options = {
+              canmount = "off";
+              mountpoint = "none";
+            };
+          };
+          "encrypted/safe/containers/users/gorschu" = {
+            type = "zfs_fs";
+            mountpoint = "/var/lib/containers/users/gorschu";
+          };
         };
       };
     };

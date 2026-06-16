@@ -72,9 +72,9 @@ install TARGET HOST='hephaestus' EXTRA_ARGS='':
 deploy HOST TARGET SSH_KEY='':
   #!/usr/bin/env bash
   set -euo pipefail
-  SSH_OPTS="-o IdentitiesOnly=yes"
+  SSH_OPTS=""
   if [ -n "{{SSH_KEY}}" ]; then
-    SSH_OPTS="$SSH_OPTS -i {{SSH_KEY}}"
+    SSH_OPTS="-o IdentitiesOnly=yes -i {{SSH_KEY}}"
   fi
   export NIX_SSHOPTS="$SSH_OPTS"
   nixos-rebuild switch --flake .#{{HOST}} --target-host root@{{TARGET}}

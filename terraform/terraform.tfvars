@@ -1,5 +1,5 @@
 vm_name      = "nixos-test"
-memory_mb    = 8192
+memory_mb    = 12288
 vcpus        = 8
 disk_size_gb = 100
 

@@ -58,10 +58,21 @@ install TARGET HOST='hephaestus' EXTRA_ARGS='':
   echo "Decrypting SSH host keys for ${BASE_HOST}..."
   just decrypt-keys {{HOST}}
 
+  # Decrypt ZFS install-time passphrase to a temp file.
+  # nixos-anywhere copies it to /tmp/zfs-passphrase on the target so disko
+  # can read it during dataset creation. After creation a postCreateHook
+  # flips keylocation back to prompt for subsequent boots.
+  ZFS_KEY_TMP="$(mktemp -t zfs-passphrase.XXXXXX)"
+  trap 'rm -f "${ZFS_KEY_TMP}"' EXIT
+  chmod 600 "${ZFS_KEY_TMP}"
+  sops -d --output-type binary secrets/hosts/${BASE_HOST}/zfs-passphrase > "${ZFS_KEY_TMP}"
+
   # Run nixos-anywhere
-  nix run github:nix-community/nixos-anywhere -- \
+  nix --extra-experimental-features 'nix-command flakes' \
+    run github:nix-community/nixos-anywhere -- \
     --flake .#{{HOST}} \
     --extra-files extra-files/${BASE_HOST} \
+    --disk-encryption-keys /tmp/zfs-passphrase "${ZFS_KEY_TMP}" \
     --generate-hardware-config nixos-facter configurations/nixos/{{HOST}}/facter.json \
     --ssh-option PreferredAuthentications=password \
     {{EXTRA_ARGS}} \

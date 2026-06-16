@@ -48,16 +48,21 @@
         };
         options.ashift = "12";
         datasets = {
-          # Encrypted root - all children inherit encryption
+          # Encrypted root - all children inherit encryption.
+          # `just install` writes the passphrase to /tmp/zfs-passphrase on the
+          # target via nixos-anywhere --disk-encryption-keys, so disko can
+          # create the dataset non-interactively. Immediately after creation
+          # we flip keylocation back to prompt so subsequent boots ask for it.
           "encrypted" = {
             type = "zfs_fs";
             options = {
               encryption = "aes-256-gcm";
               keyformat = "passphrase";
-              keylocation = "prompt";
+              keylocation = "file:///tmp/zfs-passphrase";
               canmount = "off";
               mountpoint = "none";
             };
+            postCreateHook = "zfs set keylocation=prompt zroot/encrypted";
           };
 
           # Ephemeral datasets (wiped on boot for impermanence)

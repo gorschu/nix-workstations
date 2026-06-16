@@ -27,6 +27,12 @@ creation_rules:
     key_groups:
       - age:
           - *admin_gorschu
+  # ZFS install-time passphrase: admin only (used by `just install` to seed
+  # the disko encryption step, then keylocation flips back to prompt)
+  - path_regex: secrets/hosts/[^/]+/zfs-passphrase$
+    key_groups:
+      - age:
+          - *admin_gorschu
   # User age keys: admin + the matching host bootstraps the key at boot
   - path_regex: secrets/users/[^/]+/age/hephaestus\.yaml$
     key_groups:

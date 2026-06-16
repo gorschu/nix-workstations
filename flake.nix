@@ -24,6 +24,11 @@
     nix-index-database.inputs.nixpkgs.follows = "nixpkgs";
     nixvim = {
       url = "github:nix-community/nixvim";
+      # Follow our nixpkgs (single-nixpkgs setup). nixvim warns about this; we
+      # silence it by setting programs.nixvim.nixpkgs.source explicitly in
+      # modules/home/cli/neovim/default.nix. NOTE: dropping this follows breaks
+      # eval, because nixvim's own pinned nixpkgs lags ours and trips the
+      # `lib.systems.elaborate: linux-kernel has been removed` 26.11 change.
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";
     };

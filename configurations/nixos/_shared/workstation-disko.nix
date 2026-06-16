@@ -165,6 +165,25 @@
             type = "zfs_fs";
             mountpoint = "/var/lib/containers/users/gorschu";
           };
+
+          # VM disk images: recordsize=64K matches qcow2's default cluster_size
+          # to avoid read-modify-write amplification on small VM writes. Quota
+          # caps runaway VMs so they can't eat the root pool.
+          "encrypted/safe/libvirt" = {
+            type = "zfs_fs";
+            options = {
+              canmount = "off";
+              mountpoint = "none";
+              compression = "zstd";
+              atime = "off";
+              recordsize = "64K";
+            };
+          };
+          "encrypted/safe/libvirt/images" = {
+            type = "zfs_fs";
+            mountpoint = "/var/lib/libvirt/images";
+            options.quota = "200G";
+          };
         };
       };
     };

@@ -36,4 +36,8 @@ _: {
 
   # Limit boot menu entries to last 10
   boot.loader.systemd-boot.configurationLimit = 10;
+
+  # The default command-not-found suggests `nix-env -iA ...` which is the wrong
+  # answer on a flakes system. nix-index provides better suggestions per-user.
+  programs.command-not-found.enable = false;
 }

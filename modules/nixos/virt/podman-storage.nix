@@ -4,7 +4,7 @@ let
 in
 {
   options.nixconfig.podman.storage = {
-    enable = lib.mkEnableOption "dedicated ZFS-backed container storage with composefs";
+    enable = lib.mkEnableOption "dedicated ZFS-backed container storage";
 
     rootlessUsers = lib.mkOption {
       type = lib.types.listOf lib.types.str;
@@ -20,10 +20,6 @@ in
   };
 
   config = lib.mkIf cfg.enable {
-    # composefs lets overlay share read-only layers across user namespaces,
-    # which sidesteps the first-run chown cost for rootless podman.
-    virtualisation.containers.containersConf.settings.storage.options.overlay.use_composefs = "true";
-
     systemd.tmpfiles.rules =
       [ "d /var/lib/containers/users 0755 root root - -" ]
       ++ lib.concatMap (user: [

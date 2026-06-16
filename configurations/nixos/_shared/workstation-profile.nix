@@ -11,8 +11,12 @@
   nixconfig.gui.enable = true;
   nixconfig.storage.zfs.enable = true;
 
-  nixconfig.podman.storage = {
+  nixconfig.podman = {
     enable = true;
-    rootlessUsers = [ "gorschu" ];
+    storage = {
+      enable = true;
+      rootlessUsers = [ "gorschu" ];
+    };
   };
+  nixconfig.distrobox.enable = true;
 }

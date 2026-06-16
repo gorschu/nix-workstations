@@ -43,28 +43,28 @@ in
       # Include encrypted config files for different categories (work/personal/etc)
       includes = map (category: "~/.ssh/config.d/${category}") sshCfg.secretConfigs;
 
-      # Match all hosts
-      matchBlocks."*" = {
+      # Global defaults for all hosts. The HM ssh module replaced
+      # `matchBlocks`/`extraOptions` with a freeform `settings` DAG keyed by
+      # upstream OpenSSH directive names (PascalCase); bools render as yes/no.
+      settings."*" = {
         # Use 1Password SSH agent
-        identityAgent = "~/.1password/agent.sock";
+        IdentityAgent = "~/.1password/agent.sock";
 
         # Connection multiplexing for speed
-        controlMaster = "auto";
-        controlPath = "~/.ssh/control-%r@%h:%p";
-        controlPersist = "30m";
+        ControlMaster = "auto";
+        ControlPath = "~/.ssh/control-%r@%h:%p";
+        ControlPersist = "30m";
 
         # Security settings
-        hashKnownHosts = true;
+        HashKnownHosts = true;
 
         # Performance
-        compression = true;
+        Compression = true;
 
         # Modern crypto
-        extraOptions = {
-          KexAlgorithms = "curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256";
-          Ciphers = "chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com";
-          MACs = "hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com";
-        };
+        KexAlgorithms = "curve25519-sha256@libssh.org,diffie-hellman-group-exchange-sha256";
+        Ciphers = "chacha20-poly1305@openssh.com,aes256-gcm@openssh.com,aes128-gcm@openssh.com";
+        MACs = "hmac-sha2-512-etm@openssh.com,hmac-sha2-256-etm@openssh.com";
       };
     };
 

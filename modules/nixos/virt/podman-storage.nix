@@ -30,25 +30,28 @@ in
     # mapped owner). Both rules below resolve to the same dataset-root inode
     # once the bind mount is active, so both must carry o+x or the second
     # reverts the first.
-    systemd.tmpfiles.rules =
-      [ "d /var/lib/containers/users 0755 root root - -" ]
-      ++ lib.concatMap (user: [
-        "d /var/lib/containers/users/${user} 0701 ${user} users - -"
-        "d /home/${user}/.local 0755 ${user} users - -"
-        "d /home/${user}/.local/share 0755 ${user} users - -"
-        "d /home/${user}/.local/share/containers 0701 ${user} users - -"
-      ]) cfg.rootlessUsers;
+    systemd.tmpfiles.rules = [
+      "d /var/lib/containers/users 0755 root root - -"
+    ]
+    ++ lib.concatMap (user: [
+      "d /var/lib/containers/users/${user} 0701 ${user} users - -"
+      "d /home/${user}/.local 0755 ${user} users - -"
+      "d /home/${user}/.local/share 0755 ${user} users - -"
+      "d /home/${user}/.local/share/containers 0701 ${user} users - -"
+    ]) cfg.rootlessUsers;
 
-    fileSystems = lib.listToAttrs (map (user: {
-      name = "/home/${user}/.local/share/containers";
-      value = {
-        device = "/var/lib/containers/users/${user}";
-        fsType = "none";
-        options = [
-          "bind"
-          "x-systemd.requires-mounts-for=/var/lib/containers/users/${user}"
-        ];
-      };
-    }) cfg.rootlessUsers);
+    fileSystems = lib.listToAttrs (
+      map (user: {
+        name = "/home/${user}/.local/share/containers";
+        value = {
+          device = "/var/lib/containers/users/${user}";
+          fsType = "none";
+          options = [
+            "bind"
+            "x-systemd.requires-mounts-for=/var/lib/containers/users/${user}"
+          ];
+        };
+      }) cfg.rootlessUsers
+    );
   };
 }

@@ -16,8 +16,6 @@ in
       omnix
 
       # Unix tools
-      ripgrep # Better `grep`
-      fd
       sd
       tree
       gnumake
@@ -27,19 +25,13 @@ in
       nil # Nix language server
       nix-info
       nixfmt
-
-      # On ubuntu, we need this less for `man home-configuration.nix`'s pager to
-      # work.
-      less
     ];
 
     # Programs natively supported by home-manager.
     # They can be configured in `programs.*` instead of using home.packages.
     programs = {
-      # Better `cat`
-      bat.enable = true;
-      # Type `<ctrl> + r` to fuzzy search your shell history
-      fzf.enable = true;
+      less.enable = true;
+      ripgrep.enable = true;
       jq.enable = true;
       btop.enable = true;
       # Tmate terminal sharing.

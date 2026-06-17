@@ -23,6 +23,7 @@
     username = "gorschu";
     fullname = "Gordon Schulz";
     email = "gordon@gordonschulz.de";
+    gpgSigningKey = "0A47650A15E4F0F4003EC450DEE550054AA972F6";
     sshKeys = [
       "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIMUkEk7GV/qWMR9SJFYSJSxwnPxR8fG2Fn9VILHcyPYQ gorschu@general"
     ];

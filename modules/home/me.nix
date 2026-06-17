@@ -16,6 +16,11 @@
         type = lib.types.str;
         description = "Your email for use in Git config";
       };
+      gpgSigningKey = lib.mkOption {
+        type = lib.types.nullOr lib.types.str;
+        default = null;
+        description = "OpenPGP signing key fingerprint for Git commits and tags.";
+      };
       sshKeys = lib.mkOption {
         type = lib.types.listOf lib.types.str;
         default = [ ];

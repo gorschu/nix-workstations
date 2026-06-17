@@ -42,6 +42,10 @@ When extending an existing group, follow the shape already used by the nearest m
 
 Read user identity (`username`, `fullname`, `email`, `sshKeys`, etc.) from `config.me.*`. Never hardcode these in modules.
 
+### Catppuccin theming
+
+When adding or changing Catppuccin themes, consult the Catppuccin Nix flake/modules first and prefer its Home Manager/NixOS options over hand-rolled theme files when an option exists. Example option reference: `https://nix.catppuccin.com/options/main/home/catppuccin.vicinae/`.
+
 ### Composition over inheritance
 
 Prefer small modules organized by function over per-host modules. Per-host files should compose shared modules and toggle options, not duplicate logic.

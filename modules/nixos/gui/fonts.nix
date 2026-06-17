@@ -20,8 +20,10 @@ in
     # Install fonts system-wide
     fonts.packages = with pkgs; [
       # Nerd Fonts for terminal/coding
+      iosevka
       nerd-fonts.jetbrains-mono
       nerd-fonts.monaspace
+      nerd-fonts.symbols-only
 
       # Adobe Source fonts for system UI
       source-sans

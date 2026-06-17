@@ -2,6 +2,7 @@
 {
   inputs,
   lib,
+  pkgs,
   config,
   ...
 }:
@@ -60,6 +61,7 @@ in
         (mapListToAttrs config.myusers (name: {
           isNormalUser = true;
           group = name;
+          shell = pkgs.zsh;
           extraGroups = [
             "wheel"
             "networkmanager"
@@ -79,6 +81,8 @@ in
       # Create per-user groups
       groups = mapListToAttrs config.myusers (_name: { });
     };
+
+    programs.zsh.enable = true;
 
     # All users can add Nix caches. @wheel covers sudoers.
     nix.settings.trusted-users = [

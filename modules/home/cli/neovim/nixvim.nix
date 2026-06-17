@@ -95,6 +95,7 @@
       };
     };
     lazygit.enable = true;
+    kitty-scrollback.enable = true;
   };
   keymaps = [
     # Open lazygit within nvim.

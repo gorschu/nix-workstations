@@ -28,7 +28,7 @@ in
       papers # PDF viewer
     ];
 
-    # Remove GNOME Console (ghostty and ptyxis managed via home-manager)
+    # Remove GNOME Console; terminal emulator is managed via Home Manager.
     environment.gnome.excludePackages = with pkgs; [
       gnome-console
     ];

@@ -5,10 +5,12 @@
     extra-substituters = [
       "https://hyprland.cachix.org"
       "https://cache.numtide.com"
+      "https://noctalia.cachix.org"
     ];
     extra-trusted-public-keys = [
       "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
       "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
+      "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="
     ];
   };
 
@@ -38,6 +40,14 @@
     # binary cache which is built against Hyprland's own nixpkgs pin.
     hyprland.url = "github:hyprwm/Hyprland";
 
+    # Noctalia — desktop shell (v5). Follow this repo's nixpkgs for consistency.
+    # Upstream notes that omitting this follows can improve noctalia.cachix.org
+    # cache hits, so revisit this if local Noctalia builds become expensive.
+    noctalia = {
+      url = "github:noctalia-dev/noctalia";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
+
     # System configuration inputs
     disko.url = "github:nix-community/disko";
     disko.inputs.nixpkgs.follows = "nixpkgs";
@@ -46,6 +56,12 @@
 
     # AI coding agents — daily-updated packages for codex, claude-code, copilot-cli, etc.
     llm-agents.url = "github:numtide/llm-agents.nix";
+
+    # Catppuccin theme modules for NixOS/Home Manager integrations.
+    catppuccin = {
+      url = "github:catppuccin/nix";
+      inputs.nixpkgs.follows = "nixpkgs";
+    };
 
     # KDE Plasma declarative Home Manager configuration
     plasma-manager.url = "github:nix-community/plasma-manager";
@@ -81,6 +97,7 @@
             sharedModules = [
               inputs.sops-nix.homeManagerModules.sops
               inputs.plasma-manager.homeModules.plasma-manager
+              inputs.catppuccin.homeModules.catppuccin
             ];
           };
         }
@@ -131,6 +148,7 @@
             modules = [
               inputs.sops-nix.homeManagerModules.sops
               inputs.plasma-manager.homeModules.plasma-manager
+              inputs.catppuccin.homeModules.catppuccin
               ./modules/home
               ./configurations/home/gorschu.nix
             ];

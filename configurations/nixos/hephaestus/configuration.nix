@@ -12,6 +12,7 @@
 
   nixconfig = {
     kde.enable = true;
+    hyprland.enable = true;
     networking = {
       enable = true;
       tailscale = {

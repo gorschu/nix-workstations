@@ -28,11 +28,27 @@
       };
     };
 
+    catppuccin = {
+      enable = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Enable Catppuccin theme defaults";
+      };
+    };
+
     terminals = {
       enable = lib.mkOption {
         type = lib.types.bool;
         default = true;
-        description = "Enable terminal emulator configuration (ghostty, ptyxis)";
+        description = "Enable terminal emulator configuration (kitty)";
+      };
+    };
+
+    vicinae = {
+      enable = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Enable Vicinae launcher integration";
       };
     };
 
@@ -41,6 +57,22 @@
         type = lib.types.bool;
         default = true;
         description = "Enable desktop integration (XDG portals, MIME associations)";
+      };
+    };
+
+    noctalia = {
+      enable = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Enable Noctalia desktop shell integration";
+      };
+    };
+
+    hypridle = {
+      enable = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Enable Hyprland idle handling via hypridle";
       };
     };
 

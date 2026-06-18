@@ -27,8 +27,10 @@ in
         let
           dirContents = builtins.readDir (self + /configurations/home);
           fileNames = builtins.attrNames dirContents; # Extracts keys: [ "gorschu.nix" ]
-          regularFiles = builtins.filter (name: dirContents.${name} == "regular") fileNames; # Filters for regular files
-          baseNames = map (name: builtins.replaceStrings [ ".nix" ] [ "" ] name) regularFiles; # Removes .nix extension
+          regularFiles = builtins.filter (
+            name: dirContents.${name} == "regular" && lib.hasSuffix ".nix" name
+          ) fileNames;
+          baseNames = map (lib.removeSuffix ".nix") regularFiles;
         in
         baseNames;
     };
@@ -45,6 +47,7 @@ in
     home-manager = {
       useGlobalPkgs = true; # Use system pkgs, saves evaluation
       useUserPackages = true; # Install to /etc/profiles/per-user
+      backupFileExtension = "hm-backup";
 
       # Enable home-manager for our users
       users = mapListToAttrs config.myusers (name: {

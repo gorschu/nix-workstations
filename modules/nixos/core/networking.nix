@@ -22,6 +22,7 @@ in
   config = lib.mkIf cfg.enable {
     networking = {
       networkmanager.enable = true;
+      useDHCP = lib.mkDefault false;
 
       # Pre-configured WiFi networks with sops-encrypted passwords
       networkmanager.ensureProfiles = {
@@ -42,6 +43,23 @@ in
             wifi-security = {
               key-mgmt = "wpa-psk";
               psk = "$WIFI_PASSWORD_HOME"; # Replaced from sops secret
+            };
+            ipv4.method = "auto";
+            ipv6.method = "auto";
+          };
+          "barssel" = {
+            connection = {
+              id = "barssel";
+              type = "wifi";
+              autoconnect = true;
+            };
+            wifi = {
+              ssid = "AZMODAN";
+              mode = "infrastructure";
+            };
+            wifi-security = {
+              key-mgmt = "wpa-psk";
+              psk = "$WIFI_PASSWORD_BARSSEL"; # Replaced from sops secret
             };
             ipv4.method = "auto";
             ipv6.method = "auto";
@@ -93,6 +111,7 @@ in
       templates."wifi-env" = {
         content = ''
           WIFI_PASSWORD_HOME=${config.sops.placeholder."wifi-password-home"}
+          WIFI_PASSWORD_BARSSEL=${config.sops.placeholder."wifi-password-barssel"}
           WIFI_PASSWORD_ALTENHOF=${config.sops.placeholder."wifi-password-altenhof"}
           WIFI_PASSWORD_TRAVEL=${config.sops.placeholder."wifi-password-travel"}
         '';
@@ -102,6 +121,10 @@ in
         "wifi-password-home" = {
           sopsFile = self + /secrets/hosts/wifi.yaml;
           key = "password-home";
+        };
+        "wifi-password-barssel" = {
+          sopsFile = self + /secrets/hosts/wifi.yaml;
+          key = "password-barssel";
         };
         "wifi-password-altenhof" = {
           sopsFile = self + /secrets/hosts/wifi.yaml;

@@ -11,6 +11,7 @@ let
   homeofficeModel = "49B2U6903";
   kittyBin = lib.getExe config.programs.kitty.package;
   uwsm = lib.getExe pkgs.uwsm;
+  kwalletPamInit = "${pkgs.kdePackages.kwallet-pam}/libexec/pam_kwallet_init";
 
   inherit (lib.generators) mkLuaInline;
   bind = key: dispatcher: {
@@ -71,6 +72,12 @@ in
         ];
 
         on = [
+          {
+            _args = [
+              "hyprland.start"
+              (mkLuaInline "function() hl.exec_cmd(${builtins.toJSON kwalletPamInit}) end")
+            ];
+          }
           {
             _args = [
               "hyprland.start"

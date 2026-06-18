@@ -1,6 +1,7 @@
 {
   config,
   lib,
+  pkgs,
   ...
 }:
 let
@@ -21,9 +22,20 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    environment.systemPackages = with pkgs.kdePackages; [
+      kwallet
+      kwallet-pam
+    ];
+
     programs.hyprland = {
       enable = true;
       withUWSM = true;
+    };
+
+    security.pam.services.login.kwallet = {
+      enable = lib.mkDefault true;
+      forceRun = lib.mkDefault true;
+      package = lib.mkDefault pkgs.kdePackages.kwallet-pam;
     };
   };
 }

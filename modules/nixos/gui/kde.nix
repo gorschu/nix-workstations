@@ -18,10 +18,7 @@ in
 
   config = lib.mkIf cfg.enable {
     services.desktopManager.plasma6.enable = true;
-    services.displayManager.plasma-login-manager = {
-      enable = true;
-      settings.Greeter.PreselectedSession = "";
-    };
+    services.displayManager.plasma-login-manager.enable = true;
 
     # Drop the X11 session — Wayland only. XWayland is still available for
     # individual apps that need it (enabled automatically by plasma6).

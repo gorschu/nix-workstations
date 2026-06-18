@@ -21,6 +21,11 @@
         default = null;
         description = "OpenPGP signing key fingerprint for Git commits and tags.";
       };
+      gpgPublicKeyFile = lib.mkOption {
+        type = lib.types.nullOr lib.types.path;
+        default = null;
+        description = "Armored OpenPGP public key file matching gpgSigningKey.";
+      };
       sshKeys = lib.mkOption {
         type = lib.types.listOf lib.types.str;
         default = [ ];
@@ -30,7 +35,8 @@
   };
 
   config = {
-    # Set home.username from me.username
+    # Derive Home Manager's core identity fields from user metadata.
     home.username = config.me.username;
+    home.homeDirectory = lib.mkDefault "/home/${config.me.username}";
   };
 }

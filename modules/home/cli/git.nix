@@ -7,6 +7,7 @@
 let
   cfg = config.homeconfig.cli;
   hasSigningKey = config.me.gpgSigningKey != null;
+  hasSigningPublicKey = config.me.gpgPublicKeyFile != null;
 in
 {
   config = lib.mkIf (cfg.enable && cfg.development.enable) {
@@ -106,7 +107,13 @@ in
           diffToolMode = true;
         };
       };
-      gpg.enable = true;
+      gpg = {
+        enable = true;
+        publicKeys = lib.optional hasSigningPublicKey {
+          source = config.me.gpgPublicKeyFile;
+          trust = "ultimate";
+        };
+      };
       lazygit.enable = true;
     };
 

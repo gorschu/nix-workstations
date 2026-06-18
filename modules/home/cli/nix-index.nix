@@ -20,7 +20,7 @@ in
     # https://github.com/nix-community/nix-index/issues/191
     programs.nix-index = {
       enable = true;
-      enableZshIntegration = true;
+      enableZshIntegration = false;
     };
     programs.nix-index-database.comma.enable = true;
   };

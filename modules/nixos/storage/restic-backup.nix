@@ -120,7 +120,7 @@ in
       example = lib.literalExpression ''
         {
           b2 = {
-            repository = "b2:''${config.nixconfig.storage.backup.bucketName}:/backup-''${config.networking.hostName}";
+            repository = "b2:''${config.nixconfig.storage.backup.bucketName}:''${config.networking.hostName}";
             backend = "b2";
           };
           scaleway = {

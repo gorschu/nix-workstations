@@ -21,7 +21,7 @@ Choose one or more backup targets. Each target gets its own repository and crede
 5. Create an Application Key restricted to this bucket
 6. Save the **keyID** (account ID) and **applicationKey**
 
-Each host will use a separate repository within this bucket (e.g., `b2:gorschu-backup-workstations:/backup-hephaestus`). This means:
+Each host will use a separate repository directory within this bucket (e.g., `b2:gorschu-backup-workstations:hephaestus`). This means:
 - One bucket for all workstations
 - One set of credentials shared across all workstations
 - Separate restic repositories per host (isolated, no lock contention)
@@ -110,7 +110,7 @@ In your host configuration (e.g., `configurations/nixos/hephaestus/configuration
     # bucketName defaults to "gorschu-backup-workstations"
     targets = {
       b2 = {
-        repository = "b2:${config.nixconfig.storage.backup.bucketName}:/backup-${config.networking.hostName}";
+        repository = "b2:${config.nixconfig.storage.backup.bucketName}:${config.networking.hostName}";
         backend = "b2";
       };
     };
@@ -127,7 +127,7 @@ In your host configuration (e.g., `configurations/nixos/hephaestus/configuration
     bucketName = "gorschu-backup-servers";  # Different bucket for servers
     targets = {
       b2 = {
-        repository = "b2:${config.nixconfig.storage.backup.bucketName}:/backup-${config.networking.hostName}";
+        repository = "b2:${config.nixconfig.storage.backup.bucketName}:${config.networking.hostName}";
         backend = "b2";
       };
     };
@@ -143,7 +143,7 @@ In your host configuration (e.g., `configurations/nixos/hephaestus/configuration
     enable = true;
     targets = {
       b2 = {
-        repository = "b2:${config.nixconfig.storage.backup.bucketName}:/backup-${config.networking.hostName}";
+        repository = "b2:${config.nixconfig.storage.backup.bucketName}:${config.networking.hostName}";
         backend = "b2";
       };
       scaleway = {
@@ -218,7 +218,7 @@ After deploying, initialize each restic repository. You'll need to set the envir
 export B2_ACCOUNT_ID="your-account-id"
 export B2_ACCOUNT_KEY="your-account-key"
 # For shared bucket approach:
-sudo -E restic -r b2:gorschu-backup-workstations:/backup-<hostname> init
+sudo -E restic -r b2:gorschu-backup-workstations:<hostname> init
 # For per-host bucket approach:
 # sudo -E restic -r b2:<hostname>-backup init
 ```
@@ -294,16 +294,16 @@ export B2_ACCOUNT_ID="your-account-id"
 export B2_ACCOUNT_KEY="your-account-key"
 
 # List snapshots
-sudo -E restic -r b2:<hostname>-backup snapshots
+sudo -E restic -r b2:gorschu-backup-workstations:<hostname> snapshots
 
 # List files in a snapshot
-sudo -E restic -r b2:<hostname>-backup ls <snapshot-id>
+sudo -E restic -r b2:gorschu-backup-workstations:<hostname> ls <snapshot-id>
 
 # Restore a specific file
-sudo -E restic -r b2:<hostname>-backup restore <snapshot-id> --target /tmp/restore --include /path/to/file
+sudo -E restic -r b2:gorschu-backup-workstations:<hostname> restore <snapshot-id> --target /tmp/restore --include /path/to/file
 
 # Restore entire snapshot
-sudo -E restic -r b2:<hostname>-backup restore latest --target /tmp/restore
+sudo -E restic -r b2:gorschu-backup-workstations:<hostname> restore latest --target /tmp/restore
 ```
 
 ### From S3-Compatible (Scaleway, AWS, etc.)
@@ -361,7 +361,7 @@ If you see "repository is already locked" errors, you can manually unlock:
 ```bash
 # For B2
 export B2_ACCOUNT_ID="..." B2_ACCOUNT_KEY="..."
-sudo -E restic -r b2:<hostname>-backup unlock
+sudo -E restic -r b2:gorschu-backup-workstations:<hostname> unlock
 
 # For S3-compatible (set the appropriate endpoint)
 export AWS_ACCESS_KEY_ID="..." AWS_SECRET_ACCESS_KEY="..."
@@ -379,7 +379,7 @@ sudo restic -r /mnt/backup/<hostname> unlock
 ```bash
 # For B2 (set credentials first)
 export B2_ACCOUNT_ID="..." B2_ACCOUNT_KEY="..."
-sudo -E restic -r b2:<hostname>-backup check
+sudo -E restic -r b2:gorschu-backup-workstations:<hostname> check
 
 # For S3-compatible
 export AWS_ACCESS_KEY_ID="..." AWS_SECRET_ACCESS_KEY="..."
@@ -395,7 +395,7 @@ sudo restic -r /mnt/backup/<hostname> check
 ```bash
 # For B2
 export B2_ACCOUNT_ID="..." B2_ACCOUNT_KEY="..."
-sudo -E restic -r b2:<hostname>-backup stats
+sudo -E restic -r b2:gorschu-backup-workstations:<hostname> stats
 
 # For S3-compatible: same pattern, adjust repository URL
 export AWS_ACCESS_KEY_ID="..." AWS_SECRET_ACCESS_KEY="..."

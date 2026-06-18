@@ -6,6 +6,7 @@
 }:
 let
   cfg = config.nixconfig.gui.fonts;
+  iosevkaTerm = pkgs.iosevka-bin.override { variant = "SGr-IosevkaTerm"; };
 in
 {
   options.nixconfig.gui.fonts = {
@@ -20,7 +21,7 @@ in
     # Install fonts system-wide
     fonts.packages = with pkgs; [
       # Nerd Fonts for terminal/coding
-      iosevka
+      iosevkaTerm
       nerd-fonts.jetbrains-mono
       nerd-fonts.monaspace
       nerd-fonts.symbols-only

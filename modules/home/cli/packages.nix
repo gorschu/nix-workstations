@@ -33,12 +33,6 @@ in
       less.enable = true;
       ripgrep.enable = true;
       jq.enable = true;
-      btop.enable = true;
-      # Tmate terminal sharing.
-      tmate = {
-        enable = true;
-        #host = ""; #In case you wish to use a server other than tmate.io
-      };
     };
   };
 }

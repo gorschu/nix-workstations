@@ -104,7 +104,7 @@ in
         };
         git = {
           enable = true;
-          diffToolMode = true;
+          mode = "both";
         };
       };
       gpg = {

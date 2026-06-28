@@ -23,6 +23,44 @@ in
         autosuggestion.enable = true;
         syntaxHighlighting.enable = true;
         enableCompletion = true;
+        oh-my-zsh = {
+          enable = true;
+          theme = "";
+          plugins = [
+            "git"
+            "git-lfs"
+            "gh"
+            "github"
+            "1password"
+            "sudo"
+            "extract"
+            "rsync"
+            "systemd"
+            "kubectl"
+          ];
+          extraConfig = ''
+            ENABLE_CORRECTION="false"
+            DISABLE_AUTO_TITLE=true
+            COMPLETION_WAITING_DOTS=true
+          '';
+        };
+        shellAliases = {
+          mc = "SHELL=/bin/bash mc";
+          dmesg = "dmesg --human";
+          ip = "ip --color=auto";
+          man = "batman";
+          vi = "nvim";
+          vim = "nvim";
+          cp = "nocorrect cp -i --reflink=auto --sparse=auto";
+          mv = "nocorrect mv -i";
+          rm = "nocorrect rm -i";
+          mkdir = "nocorrect mkdir";
+        };
+        shellGlobalAliases = {
+          a2c = "aria2c -x4 -j4 -c -i -";
+          nd = "*(/om[1])";
+          nf = "*(.om[1])";
+        };
         envExtra = ''
           # Custom ~/.zshenv goes here
         '';

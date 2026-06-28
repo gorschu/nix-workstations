@@ -12,7 +12,7 @@
   ];
 
   nixconfig = {
-    kde.enable = true;
+    plasma.enable = true;
     flatpak.enable = true;
     gaming = {
       enable = true;

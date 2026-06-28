@@ -6,13 +6,17 @@
   nixpkgs.hostPlatform = "x86_64-linux";
   networking.hostName = "hephaestus";
 
+  # Hyprland/Aquamarine on this Kaby Lake iGPU fails atomic commits for the
+  # Philips 5120x1440 mode when using Intel Y_TILED_CCS buffer modifiers.
+  environment.sessionVariables.AQ_NO_MODIFIERS = "1";
+
   rootSshKeys = [
     "ssh-ed25519 AAAAC3NzaC1lZDI1NTE5AAAAIKHpVzgsHl+TsjfyfAdRKpF55Q658/M3RBj03HzMdAaa root@general"
   ];
 
   nixconfig = {
-    kde.enable = true;
-    hyprland.enable = true;
+    plasma.enable = true;
+    hyprland.enable = false;
     networking = {
       enable = true;
       tailscale = {

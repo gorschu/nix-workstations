@@ -15,8 +15,8 @@ in
       description = ''
         Enable Hyprland Wayland compositor with UWSM.
         Works with any display manager or bare framebuffer.
-        Package and portal package are set automatically by the upstream
-        Hyprland flake NixOS module (hyprland.nixosModules.default in flake.nix).
+        Package and portal package are provided by the NixOS Hyprland module
+        from the pinned nixpkgs input.
       '';
     };
   };

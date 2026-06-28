@@ -6,6 +6,8 @@
 }:
 let
   cfg = config.homeconfig.gui;
+  hyprlandStackEnabled = cfg.hyprland.enable;
+  vicinaeEnabled = cfg.hyprland.vicinae.enable;
   hyprlandEnabled = config.wayland.windowManager.hyprland.enable;
 
   inherit (lib.generators) mkLuaInline;
@@ -22,16 +24,16 @@ let
 in
 {
   config = lib.mkMerge [
-    (lib.mkIf (cfg.enable && cfg.vicinae.enable) {
+    (lib.mkIf (cfg.enable && hyprlandStackEnabled && vicinaeEnabled) {
       assertions = [
         {
           assertion = hyprlandEnabled;
-          message = "homeconfig.gui.vicinae.enable requires Hyprland to be enabled.";
+          message = "homeconfig.gui.hyprland.vicinae.enable requires Hyprland to be enabled.";
         }
       ];
     })
 
-    (lib.mkIf (cfg.enable && cfg.vicinae.enable && hyprlandEnabled) {
+    (lib.mkIf (cfg.enable && hyprlandStackEnabled && vicinaeEnabled && hyprlandEnabled) {
       catppuccin.vicinae.enable = true;
 
       programs.vicinae = {

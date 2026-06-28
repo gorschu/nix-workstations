@@ -30,13 +30,23 @@ Home Manager modules sit under a category (`homeconfig.cli`, `homeconfig.gui`) w
 config = lib.mkIf (cfg.enable && cfg.<subcategory>.enable) { … };
 ```
 
-Category and subcategory toggles live in the corresponding `options.nix` for the category. When adding a module that warrants a new subcategory, add the toggle there. Defaults: CLI category on, GUI category off, subcategories on when their category is on.
+Category and subcategory toggles live in the corresponding `options.nix` for the category. When adding a module that warrants a new subcategory, add the toggle there. Defaults: CLI category on, GUI category follows `nixconfig.gui.enable` when embedded in NixOS and is off for standalone Home Manager, subcategories on when their category is on.
 
 ### NixOS: per-module enables
 
 NixOS modules are not strictly two-level. Each module defines its own `nixconfig.<thing>.enable` (and any related sub-options) close to the module that owns them. When a module depends on another being enabled, express it as an `assertions` entry with a clear message rather than silently coupling.
 
 When extending an existing group, follow the shape already used by the nearest module rather than imposing a new abstraction.
+
+### Desktop stack ownership
+
+For desktop/session stacks split across NixOS and Home Manager, NixOS owns the system session, compositor, display manager, portals, and system packages via `nixconfig.<stack>.enable`. Home Manager owns user-session integration via `homeconfig.gui.<stack>.enable`.
+
+The same ownership applies at the GUI category level: `nixconfig.gui.enable` is the system GUI/workstation switch, and `homeconfig.gui.enable` should default from it when `osConfig` is available. Standalone HM profiles must default `homeconfig.gui.enable` to `false` and opt in explicitly.
+
+When Home Manager is embedded in NixOS and `osConfig` is available, the HM stack option should default from the matching NixOS option, e.g. `homeconfig.gui.hyprland.enable` follows `nixconfig.hyprland.enable` and `homeconfig.gui.plasma.enable` follows `nixconfig.plasma.enable`. Standalone HM profiles must default these stack integrations to `false` and opt in explicitly.
+
+Components that only make sense inside a stack belong under that stack, not as loose top-level GUI toggles. For example, use `homeconfig.gui.hyprland.noctalia.enable`, `homeconfig.gui.hyprland.vicinae.enable`, and `homeconfig.gui.hyprland.hypridle.enable` rather than separate `homeconfig.gui.noctalia` / `vicinae` / `hypridle` switches.
 
 ### User metadata
 
@@ -58,6 +68,7 @@ Prefer small modules organized by function over per-host modules. Per-host files
 4. **Let directory `default.nix` files handle imports.** Do not manually list sibling modules in a parent file.
 5. **Register hosts and standalone HM profiles explicitly in `flake.nix`.** Auto-import does not cover registration.
 6. **Match existing option shapes.** Read nearby modules before introducing a new convention.
+7. **Keep stack names consistent across NixOS and HM.** Prefer the product/session name used by the rest of the config (`plasma`, `hyprland`) over mixed aliases (`kde` on one side, `plasma` on the other).
 
 ## Workflow
 

@@ -3,12 +3,10 @@
 
   nixConfig = {
     extra-substituters = [
-      "https://hyprland.cachix.org"
       "https://cache.numtide.com"
       "https://noctalia.cachix.org"
     ];
     extra-trusted-public-keys = [
-      "hyprland.cachix.org-1:a7pgxzMz7+chwVL3/pzj6jIBMioiJM7ypFP8PwtkuGc="
       "niks3.numtide.com-1:DTx8wZduET09hRmMtKdQDxNNthLQETkc/yaX7M4qK0g="
       "noctalia.cachix.org-1:pCOR47nnMEo5thcxNDtzWpOxNFQsBRglJzxWPp3dkU4="
     ];
@@ -34,11 +32,6 @@
       inputs.nixpkgs.follows = "nixpkgs";
       inputs.flake-parts.follows = "flake-parts";
     };
-
-    # Hyprland — upstream flake for latest packages and NixOS/HM modules.
-    # WARNING: do NOT add hyprland.inputs.nixpkgs.follows — breaks the Cachix
-    # binary cache which is built against Hyprland's own nixpkgs pin.
-    hyprland.url = "github:hyprwm/Hyprland";
 
     # Noctalia — desktop shell (v5). Follow this repo's nixpkgs for consistency.
     # Upstream notes that omitting this follows can improve noctalia.cachix.org
@@ -84,13 +77,20 @@
       ...
     }:
     let
+      localPackages = pkgs: import ./packages { inherit pkgs; };
+      localOverlay = final: _: localPackages final;
+
       # Shared NixOS modules applied to every host
       commonModules = [
         ./modules/nixos
         home-manager.nixosModules.home-manager
-        inputs.hyprland.nixosModules.default
         inputs.nix-flatpak.nixosModules.nix-flatpak
-        { nixpkgs.overlays = [ inputs.llm-agents.overlays.default ]; }
+        {
+          nixpkgs.overlays = [
+            localOverlay
+            inputs.llm-agents.overlays.default
+          ];
+        }
         {
           home-manager = {
             extraSpecialArgs = { inherit inputs; };
@@ -108,6 +108,7 @@
         ./modules/flake/devshell.nix
         ./modules/flake/git-hooks.nix
         ./modules/flake/neovim.nix
+        ./modules/flake/packages.nix
         ./modules/flake/toplevel.nix
       ];
 
@@ -143,7 +144,10 @@
             pkgs = import nixpkgs {
               system = "x86_64-linux";
               config.allowUnfree = true;
-              overlays = [ inputs.llm-agents.overlays.default ];
+              overlays = [
+                localOverlay
+                inputs.llm-agents.overlays.default
+              ];
             };
             extraSpecialArgs = { inherit inputs; };
             modules = [
@@ -156,6 +160,7 @@
           };
         };
 
+        overlays.default = localOverlay;
         nixosModules.default = ./modules/nixos;
         homeModules.default = ./modules/home;
       };

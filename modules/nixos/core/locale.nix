@@ -15,6 +15,7 @@
     LC_NUMERIC = lib.mkDefault "de_DE.UTF-8";
     LC_PAPER = lib.mkDefault "de_DE.UTF-8";
     LC_TELEPHONE = lib.mkDefault "de_DE.UTF-8";
+    LC_TIME = lib.mkDefault "de_DE.UTF-8";
   };
 
   # Console keymap

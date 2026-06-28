@@ -4,13 +4,6 @@
     inputs.self.homeModules.default
   ];
 
-  # Enable GUI modules for this user
-  homeconfig.gui.enable = true;
-  homeconfig.gui.plasma.enable = true;
-  homeconfig.gui.noctalia.enable = true;
-  homeconfig.gui.vicinae.enable = true;
-  homeconfig.gui.hypridle.enable = true;
-
   # SSH configuration
   homeconfig.cli.ssh = {
     secretConfigs = [ "personal" ]; # Add "work" when you have it

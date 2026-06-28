@@ -7,6 +7,8 @@
 }:
 let
   cfg = config.homeconfig.gui;
+  hyprlandStackEnabled = cfg.hyprland.enable;
+  noctaliaEnabled = cfg.hyprland.noctalia.enable;
   hyprlandEnabled = config.wayland.windowManager.hyprland.enable;
   noctaliaBin = lib.getExe config.programs.noctalia.package;
   uwsm = lib.getExe pkgs.uwsm;
@@ -27,16 +29,16 @@ in
   imports = [ inputs.noctalia.homeModules.default ];
 
   config = lib.mkMerge [
-    (lib.mkIf (cfg.enable && cfg.noctalia.enable) {
+    (lib.mkIf (cfg.enable && hyprlandStackEnabled && noctaliaEnabled) {
       assertions = [
         {
           assertion = hyprlandEnabled;
-          message = "homeconfig.gui.noctalia.enable requires Hyprland to be enabled.";
+          message = "homeconfig.gui.hyprland.noctalia.enable requires Hyprland to be enabled.";
         }
       ];
     })
 
-    (lib.mkIf (cfg.enable && cfg.noctalia.enable && hyprlandEnabled) {
+    (lib.mkIf (cfg.enable && hyprlandStackEnabled && noctaliaEnabled && hyprlandEnabled) {
       programs.noctalia = {
         enable = true;
         # Launched through UWSM from Hyprland (start hook below), not as a

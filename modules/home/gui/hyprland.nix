@@ -9,6 +9,7 @@ let
   laptopOutput = "eDP-1";
   homeofficeDescription = "Philips Consumer Electronics Company 49B2U6903 AU02421006910";
   homeofficeModel = "49B2U6903";
+  defaultWorkspace = "1";
   kittyBin = lib.getExe config.programs.kitty.package;
   onePasswordBin = "/run/current-system/sw/bin/1password";
   uwsm = lib.getExe pkgs.uwsm;
@@ -62,19 +63,81 @@ let
       {
         repeating = true;
       };
-  homeofficeMonitorHook =
-    action:
-    mkLuaInline ''
-      function(mon)
-        if mon.description:find(${builtins.toJSON homeofficeModel}, 1, true) ~= nil then
-          ${action}
+  homeofficeMonitor = mkLuaInline ''
+    (function()
+      local homeoffice = {}
+
+      local function isHomeofficeMonitor(mon)
+        return mon ~= nil
+          and (mon.description or ""):find(${builtins.toJSON homeofficeModel}, 1, true) ~= nil
+      end
+
+      local function setLaptopEnabled(enabled)
+        if homeoffice.laptopEnabled == enabled then
+          return
+        end
+
+        homeoffice.laptopEnabled = enabled
+
+        if enabled then
+          hl.monitor({
+            output = ${builtins.toJSON laptopOutput},
+            mode = "preferred",
+            position = "auto",
+            scale = 1.2,
+            disabled = false,
+          })
+        else
+          hl.monitor({
+            output = ${builtins.toJSON laptopOutput},
+            disabled = true,
+          })
+        end
+
+        -- Keep compatibility with the released nixpkgs Hyprland Lua API. Drop
+        -- this guard once all hosts run a Hyprland build exposing this helper.
+        if type(hl.exec_scheduled_prop_refresh_immediately) == "function" then
+          hl.exec_scheduled_prop_refresh_immediately()
+        end
+
+        hl.dsp.focus({ workspace = ${builtins.toJSON defaultWorkspace} })
+      end
+
+      function homeoffice.sync()
+        for _, mon in ipairs(hl.get_monitors()) do
+          if isHomeofficeMonitor(mon) then
+            setLaptopEnabled(false)
+            return
+          end
+        end
+
+        setLaptopEnabled(true)
+      end
+
+      function homeoffice.added(mon)
+        if isHomeofficeMonitor(mon) then
+          setLaptopEnabled(false)
         end
       end
-    '';
+
+      function homeoffice.removed(mon)
+        if isHomeofficeMonitor(mon) then
+          setLaptopEnabled(true)
+        end
+      end
+
+      return homeoffice
+    end)()
+  '';
 in
 {
-  config = lib.mkIf (cfg.enable && cfg.desktop.enable) {
+  config = lib.mkIf (cfg.enable && cfg.hyprland.enable) {
     catppuccin.hyprland.enable = true;
+
+    home.packages = [
+      # Provides the GTK3 Adwaita theme used by the Hyprland-only UWSM env.
+      pkgs.gnome-themes-extra
+    ];
 
     wayland.windowManager.hyprland = {
       enable = true;
@@ -88,6 +151,8 @@ in
       configType = "lua";
 
       settings = {
+        homeofficeMonitor._var = homeofficeMonitor;
+
         bind = [
           (bind "SUPER+Return" ''hl.dsp.exec_cmd("${uwsm} app -- ${kittyBin} --single-instance")'')
           (bind "SUPER+Q" "hl.dsp.window.close()")
@@ -113,10 +178,9 @@ in
         monitor = [
           {
             output = "desc:${homeofficeDescription}";
-            mode = "5120x1440@120Hz";
+            mode = "5120x1440@75.00Hz";
             position = "0x0";
             scale = mkLuaInline "1.0";
-            vrr = 1;
           }
           {
             output = laptopOutput;
@@ -126,7 +190,13 @@ in
           }
         ];
 
-        on = [
+        on = lib.mkBefore [
+          {
+            _args = [
+              "hyprland.start"
+              (mkLuaInline "homeofficeMonitor.sync")
+            ];
+          }
           {
             _args = [
               "hyprland.start"
@@ -135,34 +205,20 @@ in
           }
           {
             _args = [
-              "hyprland.start"
-              (mkLuaInline ''
-                function()
-                  local laptop = ${builtins.toJSON laptopOutput}
-                  for _, mon in ipairs(hl.get_monitors()) do
-                    if mon.description:find(${builtins.toJSON homeofficeModel}, 1, true) ~= nil then
-                      hl.exec_cmd("hyprctl keyword monitor " .. laptop .. ",disable")
-                      return
-                    end
-                  end
-                end
-              '')
-            ];
-          }
-          {
-            _args = [
               "monitor.added"
-              (homeofficeMonitorHook ''
-                hl.exec_cmd("hyprctl keyword monitor ${laptopOutput},disable")
-              '')
+              (mkLuaInline "homeofficeMonitor.added")
             ];
           }
           {
             _args = [
               "monitor.removed"
-              (homeofficeMonitorHook ''
-                hl.exec_cmd("hyprctl keyword monitor ${laptopOutput},preferred,auto,1.2")
-              '')
+              (mkLuaInline "homeofficeMonitor.removed")
+            ];
+          }
+          {
+            _args = [
+              "monitor.layout_changed"
+              (mkLuaInline "homeofficeMonitor.sync")
             ];
           }
           {
@@ -185,6 +241,8 @@ in
           input = {
             kb_layout = "de";
             kb_variant = "nodeadkeys";
+            repeat_delay = 250;
+            repeat_rate = 40;
           };
 
           general = {
@@ -226,8 +284,8 @@ in
         };
 
         # Keep regular workspaces alive so shell workspace indicators do not
-        # disappear when a workspace is empty. Monitor pinning belongs in
-        # host-specific Hyprland config if needed.
+        # disappear when a workspace is empty. Monitor transitions focus
+        # defaultWorkspace explicitly so it is not pinned to one output.
         workspace_rule = map (workspace: {
           workspace = toString workspace;
           persistent = true;
@@ -249,5 +307,8 @@ in
     # session-vars script so that all home.sessionVariables reach the session.
     xdg.configFile."uwsm/env".source =
       "${config.home.sessionVariablesPackage}/etc/profile.d/hm-session-vars.sh";
+    xdg.configFile."uwsm/env-hyprland.desktop".text = ''
+      export GTK_THEME=Adwaita:dark
+    '';
   };
 }

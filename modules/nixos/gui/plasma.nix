@@ -5,10 +5,10 @@
   ...
 }:
 let
-  cfg = config.nixconfig.kde;
+  cfg = config.nixconfig.plasma;
 in
 {
-  options.nixconfig.kde = {
+  options.nixconfig.plasma = {
     enable = lib.mkOption {
       type = lib.types.bool;
       default = false;
@@ -17,6 +17,10 @@ in
   };
 
   config = lib.mkIf cfg.enable {
+    # Let Qt apps launched outside Plasma, e.g. from Hyprland, read KDE's
+    # platform settings instead of falling back to generic Qt defaults.
+    qt.platformTheme = "kde";
+
     services.desktopManager.plasma6.enable = true;
     services.displayManager.plasma-login-manager.enable = true;
 

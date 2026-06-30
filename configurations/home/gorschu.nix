@@ -1,4 +1,4 @@
-{ inputs, ... }:
+{ config, inputs, ... }:
 {
   imports = [
     inputs.self.homeModules.default
@@ -8,6 +8,40 @@
   homeconfig.cli.ssh = {
     secretConfigs = [ "personal" ]; # Add "work" when you have it
     keys = [ "ssh-key-seedbox_ed25519" ]; # Your test key
+  };
+
+  homeconfig.cli.cloud = {
+    enable = true;
+    remotes = {
+      gdrive = {
+        type = "drive";
+        settings = {
+          scope = "drive";
+          fast_list = true;
+          chunk_size = "32M";
+        };
+        secrets = {
+          client_id = "gdrive/client_id";
+          client_secret = "gdrive/client_secret";
+          root_folder_id = "gdrive/root_folder_id";
+        };
+      };
+
+      dropbox = {
+        type = "dropbox";
+        settings.fast_list = true;
+      };
+
+      ocis = {
+        type = "webdav";
+        settings = {
+          url = "https://ocis.gobagreven.de/dav/spaces/91df2cf2-8885-4867-b602-475bd599282a$55d90393-9d28-4ce3-a3a1-85bd745e1b5d";
+          vendor = "owncloud";
+          user = config.me.username;
+        };
+        secrets.pass = "ocis/pass";
+      };
+    };
   };
 
   # Defined by /modules/home/me.nix

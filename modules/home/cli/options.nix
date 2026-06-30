@@ -36,6 +36,14 @@
       };
     };
 
+    cloud = {
+      enable = lib.mkOption {
+        type = lib.types.bool;
+        default = false;
+        description = "Enable cloud storage tooling and rclone mount services";
+      };
+    };
+
     system = {
       enable = lib.mkOption {
         type = lib.types.bool;

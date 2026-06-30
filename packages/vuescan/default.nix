@@ -43,7 +43,7 @@ stdenv.mkDerivation (finalAttrs: {
 
   src = fetchurl {
     url = "https://www.hamrick.com/files/vuex6498.tgz";
-    hash = "sha256-Q9oWI7m4KpQbOSMiRoYUeYogEOxbfFyOtlkEzzUv6UQ=";
+    hash = "sha256-4Wc2LmYDi2AIRaKyPNw0z7Nu7rAUuQCs6Qv8k07g/SM=";
   };
 
   # Stripping breaks the binary's license form.

@@ -3,38 +3,38 @@
 # Restic exclude files use one pattern per line. Empty lines and lines
 # starting with "#" are ignored.
 
-# User cache and throwaway locations
-.cache
-/home/*/.local/share/Trash
-/home/*/.local/share/containers
-/home/*/.local/share/zed
-/home/*/.thumbnails
-/home/*/.var/app/*/cache
-/home/*/Downloads
+# Curated safe-haven cache and throwaway locations
+/persist/home/*/.cache
+/persist/home/*/.local/share/Trash
+/persist/home/*/.local/share/containers
+/persist/home/*/.local/share/zed
+/persist/home/*/.thumbnails
+/persist/home/*/.var/app/*/cache
+/persist/home/*/Downloads
 *.iso
 *.ISO
 
 # Tool caches and generated indexes
-/home/*/.claude/cache
-/home/*/.codex/.tmp
-/home/*/.codex/cache
-/home/*/.codex/tmp
-/home/*/.local/share/baloo
-/home/*/.local/share/vicinae/file-indexer.db
+/persist/home/*/.claude/cache
+/persist/home/*/.codex/.tmp
+/persist/home/*/.codex/cache
+/persist/home/*/.codex/tmp
+/persist/home/*/.local/share/baloo
+/persist/home/*/.local/share/vicinae/file-indexer.db
 
 # App runtime caches
-/home/*/.config/**/Code Cache
-/home/*/.config/**/Crashpad
-/home/*/.config/**/GPUCache
-/home/*/.config/**/Shared Dictionary/cache
-/home/*/.config/mozilla/firefox/**/storage/default/**/cache
-/home/*/.local/share/flatpak/repo/tmp
+/persist/home/*/.config/**/Code Cache
+/persist/home/*/.config/**/Crashpad
+/persist/home/*/.config/**/GPUCache
+/persist/home/*/.config/**/Shared Dictionary/cache
+/persist/home/*/.config/mozilla/firefox/**/storage/default/**/cache
+/persist/home/*/.local/share/flatpak/repo/tmp
 
 # Browser caches
-/home/*/.mozilla/firefox/*/cache2
+/persist/home/*/.mozilla/firefox/*/cache2
 
 # User-mounted cloud remotes; the remote is already backed by cloud storage.
-/home/*/Cloud
+/persist/home/*/Cloud
 
 # System runtime and container state. These are mostly inert with the default
 # backup paths, but keep future /var additions from pulling in mutable stores.

@@ -44,6 +44,13 @@
     };
   };
 
+  homeconfig.persistence.safeHaven.directories = [
+    {
+      path = "ImpermanenceTest";
+      reason = "Validation directory for impermanence safe-haven exposure and reboot checks.";
+    }
+  ];
+
   # Defined by /modules/home/me.nix
   # And used all around in /modules/home/*
   me = {

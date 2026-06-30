@@ -260,7 +260,51 @@ newhostname = nixpkgs.lib.nixosSystem {
 
 ---
 
-## 6. Validate
+## 6. Impermanence Readiness
+
+Shared workstation hosts import `configurations/nixos/_shared/workstation-profile.nix`,
+which enables the impermanent-root workflow. Before switching an existing host,
+verify that the storage layout matches the shared disko layout:
+
+```bash
+sudo zfs list zroot/encrypted/ephemeral/root
+sudo zfs list zroot/encrypted/safe/persist
+sudo zfs list zroot/encrypted/safe/home
+sudo zfs list -t snapshot zroot/encrypted/ephemeral/root@blank
+test -d /persist
+test -d /home
+```
+
+Every command must succeed. If the root dataset, persistent datasets, or
+`root@blank` snapshot are missing, do not switch the host with impermanence
+enabled yet. Treat the host as `migrationRequired` only if you have an explicit
+in-place ZFS migration plan; otherwise use the reinstall path so disko creates
+the expected layout and baseline snapshot.
+
+Review the declarative system-state inventory before first activation:
+
+```bash
+nix eval .#nixosConfigurations.<hostname>.config.nixconfig.storage.impermanence.systemState.files
+nix eval .#nixosConfigurations.<hostname>.config.nixconfig.storage.impermanence.systemState.directories
+nix eval .#nixosConfigurations.<hostname>.config.nixconfig.storage.impermanence.systemState.reasons
+nix eval .#nixosConfigurations.<hostname>.config.networking.hostId
+```
+
+The inventory must include `/etc/machine-id`, `/etc/ssh/ssh_host_*` private and
+public host keys, a stable `networking.hostId`, and any enabled service state
+that cannot be safely regenerated. Runtime `/run/secrets` files are regenerated
+by sops-nix and are not persistent source data; the stable SSH host key is the
+bootstrap material that lets the host decrypt those secrets.
+
+Activation is expected to fail visibly when required storage, the blank root
+snapshot, or reviewed system-state reasons are missing. Fix the readiness issue
+before deploying; do not bypass the checks by disabling individual assertions.
+
+The existing `/home/<user>` dataset remains persistent. Curated user data that
+participates in the impermanence and backup workflow lives under
+`/persist/home/<user>` and is exposed at normal `/home/<user>/...` paths.
+
+## 7. Validate
 
 ```bash
 just check
@@ -270,7 +314,7 @@ Fix any evaluation errors before proceeding.
 
 ---
 
-## 7. Install
+## 8. Install
 
 `just install` decrypts the SSH host keys automatically before running nixos-anywhere, so you only need your admin age key available.
 
@@ -313,7 +357,7 @@ nixos-anywhere SSHes to `root@127.0.0.1` — this works fine from within the ins
 
 ---
 
-## 8. First Boot
+## 9. First Boot
 
 On first boot, NixOS sops-nix (running as root) will:
 

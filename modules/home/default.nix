@@ -7,5 +7,6 @@
     ./sops.nix # SOPS configuration (always loaded)
     ./cli
     ./gui
+    ./persistence
   ];
 }

@@ -8,6 +8,22 @@
 let
   inherit (inputs) self;
   cfg = config.nixconfig.storage.backup;
+  impermanenceCfg = config.nixconfig.storage.impermanence;
+
+  curatedBackupRootFor =
+    name:
+    config.home-manager.users.${name}.homeconfig.persistence.safeHaven.path
+      or "${impermanenceCfg.userSafeHavenRoot}/${name}";
+
+  defaultPaths =
+    if impermanenceCfg.enable then
+      lib.unique ((map curatedBackupRootFor config.myusers) ++ impermanenceCfg.systemState.backupPaths)
+    else
+      [
+        "/home"
+        "/etc"
+        "/root"
+      ];
 
   # Target type definition
   targetType = lib.types.submodule (_: {
@@ -69,11 +85,7 @@ in
 
     paths = lib.mkOption {
       type = lib.types.listOf lib.types.str;
-      default = [
-        "/home"
-        "/etc"
-        "/root"
-      ];
+      default = defaultPaths;
       description = "Paths to backup (applies to all targets)";
     };
 

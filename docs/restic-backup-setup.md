@@ -155,6 +155,36 @@ In your host configuration (e.g., `configurations/nixos/hephaestus/configuration
 }
 ```
 
+### Backup Sources with Impermanence
+
+On impermanence-enabled workstation hosts, `nixconfig.storage.backup.paths`
+defaults to the curated safe-haven path for each configured user:
+
+```text
+/persist/home/<user>
+```
+
+Additional root-owned system state is backed up only when it is explicitly
+listed in `nixconfig.storage.impermanence.systemState.backupPaths`. Persisting a
+file for boot safety does not automatically make it a backup source; add
+sensitive paths such as service enrollment state only after deciding they should
+be present in restic.
+
+Do not add the full live `/home` directory back to the default backup source.
+Ordinary `/home/<user>` files remain persistent on disk, but they are outside
+the curated backup scope unless declared under the safe-haven.
+
+Review backup sources with:
+
+```bash
+nix eval .#nixosConfigurations.hephaestus.config.nixconfig.storage.backup.paths
+nix eval .#nixosConfigurations.apollo.config.nixconfig.storage.backup.paths
+```
+
+Expected result: the paths include `/persist/home/gorschu`, include only
+system-state paths listed in `systemState.backupPaths`, and do not include the
+full live `/home` directory.
+
 #### Advanced: Per-Target Configuration
 
 ```nix
@@ -163,16 +193,17 @@ In your host configuration (e.g., `configurations/nixos/hephaestus/configuration
     enable = true;
 
     # Global defaults
+    # On impermanence-enabled workstations, omit this unless intentionally
+    # overriding the safe-haven default of /persist/home/<user> plus
+    # nixconfig.storage.impermanence.systemState.backupPaths.
     paths = [
-      "/home"
-      "/etc"
-      "/root"
+      "/persist/home/gorschu"
     ];
 
-    # Shared defaults live in modules/nixos/storage/restic-excludes.txt and are passed to
-    # restic with --exclude-file. Add short host-local patterns inline:
+    # Shared defaults live in modules/nixos/storage/restic-excludes.txt and are
+    # passed to restic with --exclude-file. Add short host-local patterns inline:
     exclude = [
-      "/home/*/scratch"
+      "/persist/home/*/scratch"
     ];
 
     # Or replace/extend the files restic reads:
@@ -271,6 +302,17 @@ journalctl -u restic-backups-b2.service
 systemctl list-timers 'restic-backups-*'
 ```
 
+Also confirm the repository target did not change while adjusting source scope:
+
+```bash
+nix eval .#nixosConfigurations.hephaestus.config.services.restic.backups.b2.repository
+nix eval .#nixosConfigurations.apollo.config.services.restic.backups.b2.repository
+```
+
+The repository, schedule, retention, password file, SOPS secret names, and
+environment template behavior should remain the same unless you intentionally
+changed the target configuration.
+
 ## Features
 
 - **Multiple backup targets**: Support for B2, S3-compatible (AWS S3, Scaleway, Wasabi, etc.), and local storage simultaneously
@@ -335,6 +377,20 @@ sudo -E restic -r s3:s3.amazonaws.com/<bucket-name> restore latest --target /tmp
 sudo restic -r /mnt/backup/<hostname> snapshots
 sudo restic -r /mnt/backup/<hostname> restore latest --target /tmp/restore
 ```
+
+## Rollback Expectations
+
+If the impermanence rollout needs to be backed out, disable the new
+impermanence enable gates and switch the host through the normal deployment
+workflow. Future boots stop resetting the root dataset through the new feature,
+but persistent `/home/<user>` data and curated `/persist/home/<user>` data remain
+on disk.
+
+Backup source rollback is only a source-list change: you may return
+`nixconfig.storage.backup.paths` to the previous paths if required, but do not
+delete safe-haven data as part of that rollback. Existing restic repositories,
+credentials, schedules, and retention settings are not changed by the
+impermanence source-scope migration.
 
 ## Monitoring
 

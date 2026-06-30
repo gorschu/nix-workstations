@@ -4,13 +4,31 @@
 # starting with "#" are ignored.
 
 # User cache and throwaway locations
-/home/*/.cache
+.cache
 /home/*/.local/share/Trash
 /home/*/.local/share/containers
 /home/*/.local/share/zed
 /home/*/.thumbnails
 /home/*/.var/app/*/cache
 /home/*/Downloads
+*.iso
+*.ISO
+
+# Tool caches and generated indexes
+/home/*/.claude/cache
+/home/*/.codex/.tmp
+/home/*/.codex/cache
+/home/*/.codex/tmp
+/home/*/.local/share/baloo
+/home/*/.local/share/vicinae/file-indexer.db
+
+# App runtime caches
+/home/*/.config/**/Code Cache
+/home/*/.config/**/Crashpad
+/home/*/.config/**/GPUCache
+/home/*/.config/**/Shared Dictionary/cache
+/home/*/.config/mozilla/firefox/**/storage/default/**/cache
+/home/*/.local/share/flatpak/repo/tmp
 
 # Browser caches
 /home/*/.mozilla/firefox/*/cache2

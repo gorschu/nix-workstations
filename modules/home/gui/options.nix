@@ -65,6 +65,14 @@ in
       };
     };
 
+    zed = {
+      enable = lib.mkOption {
+        type = lib.types.bool;
+        default = true;
+        description = "Enable Zed editor configuration";
+      };
+    };
+
     desktop = {
       enable = lib.mkOption {
         type = lib.types.bool;

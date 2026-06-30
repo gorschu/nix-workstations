@@ -22,8 +22,9 @@ in
     fonts.packages = with pkgs; [
       # Nerd Fonts for terminal/coding
       iosevkaTerm
-      nerd-fonts.jetbrains-mono
-      nerd-fonts.monaspace
+      iosevka
+      jetbrains-mono
+      monaspace
       nerd-fonts.symbols-only
 
       # Adobe Source fonts for system UI

@@ -18,6 +18,14 @@ in
 
     # https://nixos.asia/en/git
     programs = {
+      gh = {
+        enable = true;
+        settings = {
+          git_protocol = "ssh";
+          prompt = "enabled";
+        };
+      };
+
       git = {
         enable = true;
         ignores = [
@@ -67,7 +75,7 @@ in
           };
           fetch.prune = true;
           feature.manyFiles = true;
-          github.user = "gorschu";
+          github.user = config.me.username;
           help.autocorrect = 20;
           init.defaultBranch = "main";
           maintenance = {

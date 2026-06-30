@@ -13,11 +13,6 @@ in
       lazygit.enable = true;
     };
 
-    home.shellAliases = {
-      g = "git";
-      lg = "lazygit";
-    };
-
     programs = {
       difftastic = {
         enable = true;

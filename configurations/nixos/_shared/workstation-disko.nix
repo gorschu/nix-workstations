@@ -65,7 +65,8 @@
             postCreateHook = "zfs set keylocation=prompt zroot/encrypted";
           };
 
-          # Ephemeral datasets (wiped on boot for impermanence)
+          # Ephemeral datasets. root@blank is intentionally taken while / is
+          # empty; NixOS reconstructs the root tree from /nix during boot.
           "encrypted/ephemeral" = {
             type = "zfs_fs";
             options = {

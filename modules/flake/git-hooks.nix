@@ -85,7 +85,7 @@
 
             exit $exit_code
           ''}";
-          files = "^extra-files/.*/etc/ssh/ssh_host_.*_key$";
+          files = "^extra-files/.*/(?:persist/)?etc/ssh/ssh_host_.*_key$";
           excludes = [ "\\.pub$" ];
         };
       };

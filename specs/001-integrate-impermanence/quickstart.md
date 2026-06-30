@@ -7,7 +7,8 @@ from the repository root unless noted otherwise.
 
 - The feature implementation is complete.
 - `nix-community/impermanence` is present in the flake inputs.
-- The target host uses the shared workstation storage profile.
+- The target host uses the shared workstation storage profile and explicitly
+  enables `nixconfig.storage.impermanence.enable`.
 - For runtime reboot tests, use `hephaestus-vm` first or a physical host where
   you have console access and current backups.
 
@@ -56,9 +57,9 @@ switching:
 
 ```bash
 sudo zfs list zroot/encrypted/ephemeral/root
+sudo zfs list -t snapshot zroot/encrypted/ephemeral/root@blank
 sudo zfs list zroot/encrypted/safe/persist
 sudo zfs list zroot/encrypted/safe/home
-sudo zfs list -t snapshot zroot/encrypted/ephemeral/root@blank
 test -d /persist
 test -d /home
 ```
@@ -83,14 +84,27 @@ nix eval .#nixosConfigurations.apollo.config.networking.hostId
 Expected result:
 
 - Inventory includes `/etc/machine-id`.
-- Inventory includes `/etc/ssh/ssh_host_*` private and public host keys.
 - Every listed file, directory, and evaluated-state key has a non-empty reason
   in `nixconfig.storage.impermanence.systemState.reasons`.
 - ZFS host identity is stable through the evaluated `networking.hostId`, or any
   implementation-introduced `/etc/hostid` or zpool cache path is classified.
+- SSH host identity is rooted at `/persist/etc/ssh` and is read directly by
+  sops-nix and OpenSSH; it is not part of the impermanence file inventory.
 - Host-conditional service state, such as Tailscale state for enabled hosts, is
   either persisted or explicitly classified as regenerated.
 - Runtime `/run/secrets` files are not treated as persistent source data.
+
+Before enabling root reset, copy every reviewed file and directory into its
+matching `/persist` backing path. `root@blank` must be a blank root dataset
+snapshot created before the root dataset is populated, not a snapshot of a live
+configured root filesystem.
+
+```bash
+sudo install -d -m 0755 /persist/etc /persist/var/lib
+sudo cp -a /etc/machine-id /persist/etc/machine-id
+sudo cp -a /var/lib/nixos /persist/var/lib/
+sudo cp -a /var/lib/systemd /persist/var/lib/
+```
 
 ## 4. VM Reboot Validation
 
@@ -196,8 +210,8 @@ Expected result:
 
 - Missing ZFS dataset or blank snapshot: stop and follow the migration or
   reinstall documentation before enabling root reset.
-- Missing `/etc/ssh/ssh_host_*` after reboot: stop; host sops recipients may no
-  longer match and secret decryption can fail.
+- Missing `/persist/etc/ssh/ssh_host_*` after reboot: stop; host sops
+  recipients may no longer match and secret decryption can fail.
 - Missing or changed machine identity: inspect `/etc/machine-id` persistence.
 - Declared safe-haven path missing after reboot: inspect the persistence
   declaration and systemd units for the corresponding bind or link.

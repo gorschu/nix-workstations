@@ -78,8 +78,9 @@ machine-readable path lists plus `systemState.reasons`, an attrset keyed by
 exact live path or evaluated-state key. The minimum inventory covers:
 
 - `/etc/machine-id` for stable machine identity.
-- `/etc/ssh/ssh_host_*` private and public host keys for stable SSH identity and
-  sops host-recipient decryption.
+- `/persist/etc/ssh/ssh_host_*` private and public host keys for stable SSH
+  identity and sops host-recipient decryption. These keys are consumed directly
+  by sops-nix and OpenSSH rather than by impermanence.
 - ZFS identity/import state. In this repository `networking.hostId` is derived
   deterministically from `config.networking.hostName`, so validation must prove
   that evaluated value; if implementation introduces `/etc/hostid` or zpool

@@ -60,6 +60,14 @@ When adding or changing Catppuccin themes, consult the Catppuccin Nix flake/modu
 
 Prefer small modules organized by function over per-host modules. Per-host files should compose shared modules and toggle options, not duplicate logic.
 
+### Persistent path ownership
+
+When a module makes a `/persist/...` path authoritative, it must also declare
+the ownership and mode for that path with `systemd.tmpfiles.rules` or an
+equivalent declarative mechanism. This is mandatory for secret or identity
+material such as SSH host keys; do not rely on one-time installer permissions or
+manual `chmod` commands.
+
 ## Critical rules
 
 1. **Never put `imports` inside a `config` block.** `imports` belongs at the top level of the module.
@@ -69,13 +77,14 @@ Prefer small modules organized by function over per-host modules. Per-host files
 5. **Register hosts and standalone HM profiles explicitly in `flake.nix`.** Auto-import does not cover registration.
 6. **Match existing option shapes.** Read nearby modules before introducing a new convention.
 7. **Keep stack names consistent across NixOS and HM.** Prefer the product/session name used by the rest of the config (`plasma`, `hyprland`) over mixed aliases (`kde` on one side, `plasma` on the other).
+8. **Own `/persist` permissions declaratively.** Any persistent backing path introduced by a module must have explicit tmpfiles ownership/mode rules.
 
 ## Workflow
 
 - `just` — list recipes.
 - `just lint` / `just check` — formatting and `nix flake check`.
-- `just deploy-local` — switch the current NixOS host to its matching `nixosConfigurations` entry.
-- `just deploy <host> <target>` — remote `nixos-rebuild switch`.
+- `just deploy-local [host]` — switch the local machine to a `nixosConfigurations` entry, defaulting to the current hostname.
+- `just deploy <target> [host] [ssh-key]` — remote `nixos-rebuild switch`, defaulting `host` to `hephaestus`.
 - `just install <target> HOST=<host>` — first-time install via `nixos-anywhere`.
 - VM lifecycle (`vm-create`, `vm-destroy`, `vm-info`, `vm-console`, …) drives the Terraform/libvirt rig under `terraform/`.
 - Secret handling uses `sops-nix`; host SSH keys are staged via `just decrypt-keys <host>`.

@@ -9,15 +9,22 @@ decrypt-keys HOST:
   set -euo pipefail
   BASE_HOST="{{HOST}}"
   BASE_HOST="${BASE_HOST%-vm}"
-  dest_dir="extra-files/${BASE_HOST}/etc/ssh"
+  dest_dir="extra-files/${BASE_HOST}/persist/etc/ssh"
+  shopt -s nullglob
+  keys=(secrets/hosts/${BASE_HOST}/ssh/ssh_host_*_key)
+  if [ ${#keys[@]} -eq 0 ]; then
+    echo "ERROR: no encrypted SSH host keys found for ${BASE_HOST} under secrets/hosts/${BASE_HOST}/ssh" >&2
+    exit 1
+  fi
   mkdir -p "${dest_dir}"
-  for enc in secrets/hosts/${BASE_HOST}/ssh/ssh_host_*_key; do
-    [ -f "$enc" ] || continue
+  for enc in "${keys[@]}"; do
     keyname="$(basename "${enc}")"
     dest="${dest_dir}/${keyname}"
     echo "Decrypting ${enc} -> ${dest}"
     sops -d "${enc}" > "${dest}"
     chmod 600 "${dest}"
+    ssh-keygen -y -f "${dest}" > "${dest}.pub"
+    chmod 644 "${dest}.pub"
   done
   echo "SSH host keys decrypted successfully"
 
@@ -74,41 +81,74 @@ install TARGET HOST='hephaestus' EXTRA_ARGS='':
     {{EXTRA_ARGS}} \
     root@{{TARGET}}
 
-# Deploy configuration updates to existing system
+# Deploy configuration updates to an existing system
 [group('deploy')]
-deploy HOST TARGET SSH_KEY='':
+deploy TARGET HOST='hephaestus' SSH_KEY='':
   #!/usr/bin/env bash
   set -euo pipefail
-  SSH_OPTS=""
-  if [ -n "{{SSH_KEY}}" ]; then
-    SSH_OPTS="-o IdentitiesOnly=yes -i {{SSH_KEY}}"
+  target="{{TARGET}}"
+  host="{{HOST}}"
+  ssh_key="{{SSH_KEY}}"
+  target_host="root@${target}"
+  if [[ "${target}" == *@* ]]; then
+    target_host="${target}"
   fi
+
+  # nixos-rebuild creates SSH control sockets under TMPDIR. Long nix-shell
+  # temp paths can exceed Unix socket path limits, so force a short base path.
+  short_tmp="/tmp/nrb-$(id -u)"
+  install -d -m 700 "${short_tmp}"
+  export TMPDIR="${short_tmp}"
+
+  SSH_OPTS="-o ControlMaster=auto -o ControlPersist=60 -o ControlPath=${short_tmp}/ssh-%C"
+  if [ -n "${ssh_key}" ]; then
+    SSH_OPTS="${SSH_OPTS} -o IdentitiesOnly=yes -i ${ssh_key}"
+  fi
+
   export NIX_SSHOPTS="$SSH_OPTS"
-  nixos-rebuild switch --flake .#{{HOST}} --target-host root@{{TARGET}}
+  nixos-rebuild switch --flake ".#${host}" --target-host "${target_host}"
 
 # Deploy configuration to localhost
 [group('deploy')]
-deploy-local:
+deploy-local HOST='':
   #!/usr/bin/env bash
   set -euo pipefail
-  HOST=$(hostnamectl hostname)
-  echo "Deploying configuration for host: ${HOST}"
-  sudo nixos-rebuild switch --flake .#${HOST}
+  host="{{HOST}}"
+  if [ -z "${host}" ]; then
+    host="$(hostnamectl hostname)"
+  fi
+  short_tmp="/tmp/nrb-$(id -u)"
+  install -d -m 700 "${short_tmp}"
+  export TMPDIR="${short_tmp}"
+  echo "Deploying configuration for host: ${host}"
+  sudo nixos-rebuild switch --flake ".#${host}"
 
 # Deploy configuration to localhost and activate it on next reboot
 [group('deploy')]
-deploy-local-reboot:
+deploy-local-reboot HOST='':
   #!/usr/bin/env bash
   set -euo pipefail
-  HOST=$(hostnamectl hostname)
-  echo "Deploying configuration for host: ${HOST} on next reboot"
-  sudo nixos-rebuild boot --flake .#${HOST}
+  host="{{HOST}}"
+  if [ -z "${host}" ]; then
+    host="$(hostnamectl hostname)"
+  fi
+  short_tmp="/tmp/nrb-$(id -u)"
+  install -d -m 700 "${short_tmp}"
+  export TMPDIR="${short_tmp}"
+  echo "Deploying configuration for host: ${host} on next reboot"
+  sudo nixos-rebuild boot --flake ".#${host}"
 
 # Install with VM test (dry-run)
 [group('deploy')]
 install-vm HOST='hephaestus':
+  #!/usr/bin/env bash
+  set -euo pipefail
+  BASE_HOST="{{HOST}}"
+  BASE_HOST="${BASE_HOST%-vm}"
+  just decrypt-keys {{HOST}}
   nix run github:nix-community/nixos-anywhere -- \
     --flake .#{{HOST}} \
+    --extra-files extra-files/${BASE_HOST} \
     --vm-test
 
 # Create test VM with Terraform

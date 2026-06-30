@@ -1,6 +1,7 @@
 { config, lib, ... }:
 let
   cfg = config.nixconfig.ssh;
+  hostKeyRoot = "/persist/etc/ssh";
 in
 {
   options.nixconfig.ssh = {
@@ -20,6 +21,17 @@ in
     services.openssh = {
       enable = true;
       ports = [ cfg.port ];
+      hostKeys = [
+        {
+          path = "${hostKeyRoot}/ssh_host_ed25519_key";
+          type = "ed25519";
+        }
+        {
+          path = "${hostKeyRoot}/ssh_host_rsa_key";
+          type = "rsa";
+          bits = 4096;
+        }
+      ];
       settings = {
         # Security settings
         PermitRootLogin = "prohibit-password";
@@ -53,10 +65,18 @@ in
     # /etc/ssh must be traversable by all users so OpenSSH can read
     # AuthorizedKeysFile entries — sshd drops to the target user's UID before
     # opening the file, so a 700 directory silently breaks pubkey auth.
-    # Private host keys are protected individually at 0600.
+    # Host identity lives under /persist so sops and sshd read one canonical
+    # persistent location regardless of impermanence.
+    sops.age.sshKeyPaths = [ "${hostKeyRoot}/ssh_host_ed25519_key" ];
+
+    fileSystems."/persist".neededForBoot = true;
+
     systemd.tmpfiles.rules = [
       "z /etc/ssh 0755 root root - -"
-      "z /etc/ssh/ssh_host_* 0600 root root - -"
+      "d /persist/etc 0755 root root - -"
+      "d ${hostKeyRoot} 0755 root root - -"
+      "z ${hostKeyRoot}/ssh_host_*_key 0600 root root - -"
+      "z ${hostKeyRoot}/ssh_host_*_key.pub 0644 root root - -"
     ];
   };
 }

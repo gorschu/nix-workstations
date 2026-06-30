@@ -25,6 +25,7 @@
       };
     };
     storage = {
+      impermanence.enable = true;
       zswap.enable = true;
       backup = {
         enable = true;

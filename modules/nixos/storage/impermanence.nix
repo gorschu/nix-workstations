@@ -14,10 +14,6 @@ let
 
   defaultFiles = [
     "/etc/machine-id"
-    "/etc/ssh/ssh_host_ed25519_key"
-    "/etc/ssh/ssh_host_ed25519_key.pub"
-    "/etc/ssh/ssh_host_rsa_key"
-    "/etc/ssh/ssh_host_rsa_key.pub"
   ];
 
   defaultDirectories = [
@@ -29,11 +25,6 @@ let
 
   defaultReasons = {
     "/etc/machine-id" = "Stable machine identity across impermanent root resets.";
-    "/etc/ssh/ssh_host_ed25519_key" = "Stable SSH host identity and sops host-recipient decryption.";
-    "/etc/ssh/ssh_host_ed25519_key.pub" = "Public half of the stable SSH host identity.";
-    "/etc/ssh/ssh_host_rsa_key" =
-      "Stable legacy SSH host identity for clients or recipients that still rely on RSA.";
-    "/etc/ssh/ssh_host_rsa_key.pub" = "Public half of the stable legacy SSH host identity.";
     "/var/lib/nixos" = "NixOS runtime state that must remain stable across root resets.";
     "/var/lib/systemd" = "Systemd state for persistent timers and service bookkeeping.";
     "networking.hostId" = "Deterministic ZFS import host identity derived from the hostname.";
@@ -61,6 +52,20 @@ let
   unreviewedBackupPaths = builtins.filter (
     path: !(builtins.elem path reviewedBackingPaths)
   ) cfg.systemState.backupPaths;
+
+  requiredBackingFileChecks = lib.concatMapStringsSep "\n" (path: ''
+    if ! test -e ${lib.escapeShellArg (backingPath path)}; then
+      echo "impermanence: missing persistent backing file ${backingPath path} for ${path}" >&2
+      exit 1
+    fi
+  '') cfg.systemState.files;
+
+  requiredBackingDirectoryChecks = lib.concatMapStringsSep "\n" (path: ''
+    if ! test -d ${lib.escapeShellArg (backingPath path)}; then
+      echo "impermanence: missing persistent backing directory ${backingPath path} for ${path}" >&2
+      exit 1
+    fi
+  '') cfg.systemState.directories;
 
   shellRootDataset = lib.escapeShellArg cfg.rootDataset;
   shellBlankSnapshot = lib.escapeShellArg cfg.blankSnapshot;
@@ -141,6 +146,10 @@ in
         message = "nixconfig.storage.impermanence.blankSnapshot must not be empty.";
       }
       {
+        assertion = lib.hasPrefix "${cfg.rootDataset}@" cfg.blankSnapshot;
+        message = "nixconfig.storage.impermanence.blankSnapshot must belong to rootDataset.";
+      }
+      {
         assertion = !(lib.hasPrefix "/home/" cfg.userSafeHavenRoot);
         message = "nixconfig.storage.impermanence.userSafeHavenRoot must not live inside /home.";
       }
@@ -170,16 +179,16 @@ in
     boot.initrd.systemd.services.impermanence-root-rollback = {
       description = "Roll back impermanent root dataset to blank snapshot";
       after = [ "zfs-import-${rootPool}.service" ];
-      before = [
-        "sysroot.mount"
-        "zfs-import.target"
-      ];
-      requiredBy = [
-        "sysroot.mount"
-        "zfs-import.target"
-      ];
-      unitConfig.DefaultDependencies = "no";
-      serviceConfig.Type = "oneshot";
+      before = [ "sysroot.mount" ];
+      requiredBy = [ "sysroot.mount" ];
+      unitConfig = {
+        ConditionPathExists = "!/run/impermanence-root-rollback.done";
+        DefaultDependencies = "no";
+      };
+      serviceConfig = {
+        RemainAfterExit = true;
+        Type = "oneshot";
+      };
       path = [ config.boot.zfs.package ];
       script = ''
         echo "impermanence: verifying ${cfg.blankSnapshot}"
@@ -190,6 +199,7 @@ in
 
         echo "impermanence: rolling back ${cfg.rootDataset} to ${cfg.blankSnapshot}"
         zfs rollback -r ${shellBlankSnapshot}
+        : > /run/impermanence-root-rollback.done
       '';
     };
 
@@ -201,30 +211,36 @@ in
     fileSystems.${cfg.persistRoot}.neededForBoot = true;
     fileSystems."/home".neededForBoot = true;
 
-    system.activationScripts.impermanenceReadiness.text = ''
-      set -eu
+    system.activationScripts.impermanenceReadiness = {
+      deps = [ "persist-files" ];
+      text = ''
+        set -eu
 
-      if ! ${pkgs.zfs}/bin/zfs list -H -o name ${shellRootDataset} >/dev/null 2>&1; then
-        echo "impermanence: missing required root dataset ${cfg.rootDataset}" >&2
-        exit 1
-      fi
+        if ! ${pkgs.zfs}/bin/zfs list -H -o name ${shellRootDataset} >/dev/null 2>&1; then
+          echo "impermanence: missing required root dataset ${cfg.rootDataset}" >&2
+          exit 1
+        fi
 
-      if ! ${pkgs.zfs}/bin/zfs list -H -t snapshot -o name ${shellBlankSnapshot} >/dev/null 2>&1; then
-        echo "impermanence: missing required root snapshot ${cfg.blankSnapshot}" >&2
-        exit 1
-      fi
+        if ! ${pkgs.zfs}/bin/zfs list -H -t snapshot -o name ${shellBlankSnapshot} >/dev/null 2>&1; then
+          echo "impermanence: missing required root snapshot ${cfg.blankSnapshot}" >&2
+          exit 1
+        fi
 
-      test -d ${shellPersistRoot} || {
-        echo "impermanence: missing persistent root ${cfg.persistRoot}" >&2
-        exit 1
-      }
+        test -d ${shellPersistRoot} || {
+          echo "impermanence: missing persistent root ${cfg.persistRoot}" >&2
+          exit 1
+        }
 
-      test -d /home || {
-        echo "impermanence: missing persistent /home" >&2
-        exit 1
-      }
+        test -d /home || {
+          echo "impermanence: missing persistent /home" >&2
+          exit 1
+        }
 
-      install -d -m 0755 -o root -g root ${shellSafeHavenRoot}
-    '';
+        ${requiredBackingFileChecks}
+        ${requiredBackingDirectoryChecks}
+
+        install -d -m 0755 -o root -g root ${shellSafeHavenRoot}
+      '';
+    };
   };
 }

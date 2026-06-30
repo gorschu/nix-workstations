@@ -59,7 +59,8 @@ Fields:
 Minimum entries:
 
 - Machine identity: `/etc/machine-id`.
-- SSH host identity: `/etc/ssh/ssh_host_*` private and public keys.
+- SSH host identity: `/persist/etc/ssh/ssh_host_*` private and public keys,
+  consumed directly by sops-nix and OpenSSH rather than by impermanence.
 - ZFS identity/import state: evaluated `networking.hostId` and any file-backed
   host ID or zpool cache path introduced by implementation.
 - Secret bootstrap dependencies: stable SSH host keys for sops host-recipient

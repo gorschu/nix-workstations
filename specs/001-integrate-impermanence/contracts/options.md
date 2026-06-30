@@ -96,21 +96,19 @@ Type: list of absolute path strings
 Minimum required entries:
 
 - `/etc/machine-id`
-- `/etc/ssh/ssh_host_ed25519_key`
-- `/etc/ssh/ssh_host_ed25519_key.pub`
-- `/etc/ssh/ssh_host_rsa_key`
-- `/etc/ssh/ssh_host_rsa_key.pub`
 
 Behavior:
 
 - Declares root-owned files that must survive root reset.
+- SSH host keys are not declared here; they live directly under
+  `/persist/etc/ssh` and are consumed there by sops-nix and OpenSSH.
 
 Validation:
 
 - Each entry must have a corresponding reason in
   `nixconfig.storage.impermanence.systemState.reasons`.
-- Host-specific keys must come from the existing sops/extra-files flow; do not
-  generate new host identities silently.
+- Host-specific keys must come from the existing sops/extra-files flow into
+  `/persist/etc/ssh`; do not generate new host identities silently.
 
 ### `nixconfig.storage.impermanence.systemState.directories`
 
@@ -148,8 +146,6 @@ Behavior:
   item is allowed to survive root reset.
 - Keys are exact live paths or evaluated-state names, for example:
   - `"/etc/machine-id"`: stable machine identity.
-  - `"/etc/ssh/ssh_host_ed25519_key"`: stable SSH host identity and sops
-    host-recipient decryption.
   - `"networking.hostId"`: deterministic ZFS import host ID from hostname.
 
 Validation:

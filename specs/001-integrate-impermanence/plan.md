@@ -54,12 +54,13 @@ evaluated.
 Backup source selection remains under `nixconfig.storage.backup`.
 
 **Secrets / State**: No new secret material is expected. The system-state
-inventory must cover at least `/etc/machine-id`, SSH host keys under
-`/etc/ssh`, ZFS identity/import state, and secret-decryption dependencies. In
-this repo `networking.hostId` is currently derived deterministically from the
-host name, so the inventory must validate that evaluated value and only persist
-a file such as `/etc/hostid` if implementation introduces one. The user age key
-is provisioned through sops-nix into `/run/secrets`; the stable host SSH key is
+inventory must cover at least `/etc/machine-id`, ZFS identity/import state, and
+secret-decryption dependencies. Host SSH keys live directly under
+`/persist/etc/ssh` and are consumed there by sops-nix and OpenSSH. In this repo
+`networking.hostId` is currently derived deterministically from the host name,
+so the inventory must validate that evaluated value and only persist a file such
+as `/etc/hostid` if implementation introduces one. The user age key is
+provisioned through sops-nix into `/run/secrets`; the stable host SSH key is
 the critical persisted bootstrap material for decrypting it.
 
 **Operational Workflows**: Prefer `just lint`, narrow `nix build` targets for
@@ -259,7 +260,7 @@ without rediscovering it.
   [contracts/options.md](./contracts/options.md)
   "`nixconfig.storage.impermanence.systemState.reasons`" and
   [quickstart.md](./quickstart.md) "System-State Inventory Review".
-- Validate that `/etc/machine-id`, `/etc/ssh/ssh_host_*`,
+- Validate that `/etc/machine-id`, `/persist/etc/ssh/ssh_host_*`,
   `networking.hostId`, sops bootstrap behavior, and any enabled service state
   remain stable after reboot. Reference: [spec.md](./spec.md) FR-003 and
   SC-002.

@@ -169,9 +169,15 @@ In your host configuration (e.g., `configurations/nixos/hephaestus/configuration
       "/root"
     ];
 
+    # Shared defaults live in modules/nixos/storage/restic-excludes.txt and are passed to
+    # restic with --exclude-file. Add short host-local patterns inline:
     exclude = [
-      "/home/*/.cache"
-      "/home/*/Downloads"
+      "/home/*/scratch"
+    ];
+
+    # Or replace/extend the files restic reads:
+    excludeFiles = [
+      ./my-restic-excludes
     ];
 
     # Default schedule: every 6 hours

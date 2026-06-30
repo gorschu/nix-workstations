@@ -79,16 +79,17 @@ in
 
     exclude = lib.mkOption {
       type = lib.types.listOf lib.types.str;
-      default = [
-        "/home/*/.cache"
-        "/home/*/.local/share/Trash"
-        "/home/*/Downloads"
-        "/home/*/.mozilla/firefox/*/cache2"
-        "/var/lib/systemd"
-        "/var/lib/docker"
-        "/var/lib/containers"
-      ];
-      description = "Paths to exclude from backup (applies to all targets)";
+      default = [ ];
+      description = "Additional restic exclude patterns (applies to all targets)";
+    };
+
+    excludeFiles = lib.mkOption {
+      type = lib.types.listOf lib.types.path;
+      default = [ ./restic-excludes.txt ];
+      description = ''
+        Files containing restic exclude patterns (applies to all targets).
+        Use this for shared or long exclude lists; use exclude for short host-local additions.
+      '';
     };
 
     defaultTimerConfig = lib.mkOption {
@@ -154,8 +155,9 @@ in
       # Environment file based on backend type
       environmentFile = config.sops.templates."restic-env-${name}".path;
 
-      # Backup paths
+      # Backup paths and excludes
       inherit (cfg) paths exclude;
+      extraBackupArgs = map (file: "--exclude-file=${file}") cfg.excludeFiles;
 
       # Timer configuration
       inherit (targetCfg) timerConfig;

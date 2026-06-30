@@ -1,0 +1,28 @@
+# Shared workstation restic excludes.
+#
+# Restic exclude files use one pattern per line. Empty lines and lines
+# starting with "#" are ignored.
+
+# User cache and throwaway locations
+/home/*/.cache
+/home/*/.local/share/Trash
+/home/*/.local/share/containers
+/home/*/.local/share/zed
+/home/*/.thumbnails
+/home/*/.var/app/*/cache
+/home/*/Downloads
+
+# Browser caches
+/home/*/.mozilla/firefox/*/cache2
+
+# User-mounted cloud remotes; the remote is already backed by cloud storage.
+/home/*/Cloud
+
+# System runtime and container state. These are mostly inert with the default
+# backup paths, but keep future /var additions from pulling in mutable stores.
+/var/cache
+/var/tmp
+/var/lib/systemd
+/var/lib/docker
+/var/lib/containers
+/var/lib/libvirt/images

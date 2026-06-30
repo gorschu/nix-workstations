@@ -9,6 +9,7 @@
   ];
 
   nixconfig.gui.enable = true;
+  nixconfig.nix-ld.enable = true;
   nixconfig.storage.zfs.enable = true;
 
   nixconfig.podman = {

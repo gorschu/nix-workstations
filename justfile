@@ -95,6 +95,15 @@ deploy-local:
   echo "Deploying configuration for host: ${HOST}"
   sudo nixos-rebuild switch --flake .#${HOST}
 
+# Deploy configuration to localhost and activate it on next reboot
+[group('deploy')]
+deploy-local-reboot:
+  #!/usr/bin/env bash
+  set -euo pipefail
+  HOST=$(hostnamectl hostname)
+  echo "Deploying configuration for host: ${HOST} on next reboot"
+  sudo nixos-rebuild boot --flake .#${HOST}
+
 # Install with VM test (dry-run)
 [group('deploy')]
 install-vm HOST='hephaestus':

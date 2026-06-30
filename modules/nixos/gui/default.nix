@@ -1,11 +1,11 @@
 { config, lib, ... }:
 let
-  inherit (builtins) readDir attrNames filter;
+  repoLib = import ../../../lib { inherit lib; };
   cfg = config.nixconfig.gui;
 in
 {
   # Always import GUI modules (they have their own enable guards)
-  imports = map (fn: ./${fn}) (filter (fn: fn != "default.nix") (attrNames (readDir ./.)));
+  imports = repoLib.importNixModules ./.;
 
   options.nixconfig.gui = {
     enable = lib.mkOption {

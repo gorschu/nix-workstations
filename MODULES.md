@@ -7,7 +7,7 @@ This document describes the conventions and patterns that govern modules in this
 `flake.nix` is the only place that performs explicit wiring of hosts and standalone Home Manager profiles. Everything else flows from auto-import:
 
 - `modules/{home,nixos}/default.nix` import their top-level groups.
-- Each group's `default.nix` auto-imports every sibling and nested subgroup via a small `readDir` snippet.
+- Each group's `default.nix` auto-imports sibling `.nix` modules and nested subgroups via `lib/default.nix`.
 - Shared NixOS wiring applied to every host is bundled in `commonModules` inside `flake.nix`.
 - Cross-host workstation wiring (profile, disk layout) lives in `configurations/nixos/_shared/` and is imported by host entrypoints that want it.
 

@@ -1,8 +1,8 @@
-_:
+{ lib, ... }:
 let
-  inherit (builtins) readDir attrNames filter;
+  repoLib = import ../../../lib { inherit lib; };
 in
 {
   # Virt modules define their own options and enable guards
-  imports = map (fn: ./${fn}) (filter (fn: fn != "default.nix") (attrNames (readDir ./.)));
+  imports = repoLib.importNixModules ./.;
 }

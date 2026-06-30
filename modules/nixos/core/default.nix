@@ -1,10 +1,10 @@
 { lib, ... }:
 let
-  inherit (builtins) readDir attrNames filter;
+  repoLib = import ../../../lib { inherit lib; };
 in
 {
   # Core modules are always imported, but some have enable options (like SSH)
-  imports = map (fn: ./${fn}) (filter (fn: fn != "default.nix") (attrNames (readDir ./.)));
+  imports = repoLib.importNixModules ./.;
 
   # Enable SSH by default
   nixconfig.ssh.enable = lib.mkDefault true;

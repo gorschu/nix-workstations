@@ -1,8 +1,8 @@
-_:
+{ lib, ... }:
 let
-  inherit (builtins) readDir attrNames filter;
+  repoLib = import ../../../lib { inherit lib; };
 in
 {
   # Auto-import all .nix files in this directory except default.nix
-  imports = map (fn: ./${fn}) (filter (fn: fn != "default.nix") (attrNames (readDir ./.)));
+  imports = repoLib.importNixModules ./.;
 }

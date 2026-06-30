@@ -1,6 +1,7 @@
-{ ... }:
+{ lib, ... }:
+let
+  repoLib = import ../../../lib { inherit lib; };
+in
 {
-  imports = map (fn: ./${fn}) (
-    builtins.filter (fn: fn != "default.nix") (builtins.attrNames (builtins.readDir ./.))
-  );
+  imports = repoLib.importNixModules ./.;
 }

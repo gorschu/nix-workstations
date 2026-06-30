@@ -11,21 +11,8 @@ let
 in
 {
   config = lib.mkIf (cfg.enable && cfg.development.enable) {
-    home.shellAliases = {
-      g = "git";
-      lg = "lazygit";
-    };
-
     # https://nixos.asia/en/git
     programs = {
-      gh = {
-        enable = true;
-        settings = {
-          git_protocol = "ssh";
-          prompt = "enabled";
-        };
-      };
-
       git = {
         enable = true;
         ignores = [
@@ -103,18 +90,6 @@ in
           };
         };
       };
-      difftastic = {
-        enable = true;
-        options = {
-          background = "dark";
-          color = "auto";
-          display = "side-by-side";
-        };
-        git = {
-          enable = true;
-          mode = "both";
-        };
-      };
       gpg = {
         enable = true;
         publicKeys = lib.optional hasSigningPublicKey {
@@ -122,7 +97,6 @@ in
           trust = "ultimate";
         };
       };
-      lazygit.enable = true;
     };
 
     services.gpg-agent = lib.mkIf hasSigningKey {
